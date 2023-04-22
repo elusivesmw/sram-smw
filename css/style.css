@@ -14,7 +14,7 @@ body {
     font-family: Courier, monospace;
 }
 
-#file-header {
+.offset {
     background-color: #444;
 }
 
@@ -23,10 +23,30 @@ body {
     
 }
 
+#file-header {
+    background-color: #444;
+}
+
+#file-bytes {
+
+}
+
 .offset {
     padding-right: 10px;
 }
 
 .byte {
+    
+}
 
+.file-a {
+    background-color: #600;
+}
+
+.file-b {
+    background-color: #060;
+}
+
+.file-c {
+    background-color: #006;
 }
