@@ -5,7 +5,13 @@ html {
 }
 
 body {
-    margin: 0;
+    margin: 10px;
+
+}
+
+#file-data {
+    display: flex;
+    font-family: Courier, monospace;
 }
 
 #file-header {
@@ -14,5 +20,13 @@ body {
 
 #file-contents span {
     padding: 2px;
-    font-family: Courier, monospace;
+    
+}
+
+.offset {
+    padding-right: 10px;
+}
+
+.byte {
+
 }
