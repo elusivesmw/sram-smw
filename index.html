@@ -2,18 +2,23 @@
 <html class="dark">
     <head>
         <title>SRAM SMW</title>
+        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" type="text/css" href="css/style.css" />
     </head>
     <body>
-        <div>
+        <div id="open-sram-div">
             <input type="file" id="open-sram-btn" accept=".srm,*.*" />
         </div>
         <div id="file-data">
             <div id="file-offsets"></div>
             <div id="file-contents">
-                <div id="file-header"></div>
-                <div id="file-bytes">
+                <div id="file-bytes-header"></div>
+                <div id="file-bytes"></div>
+            </div>
+            <div id="file-text">
+                <div id="file-chars-header"></div>
+                <div id="file-chars"></div>
             </div>
         </div>
 

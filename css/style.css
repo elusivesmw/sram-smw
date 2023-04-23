@@ -5,8 +5,11 @@ html {
 }
 
 body {
-    margin: 10px;
+    margin: 0.75em;
+}
 
+#open-sram-div {
+    margin-bottom: 1.5em;
 }
 
 #file-data {
@@ -14,16 +17,30 @@ body {
     font-family: Courier, monospace;
 }
 
+#file-offsets {
+    margin-right: 0.75em;
+}
+
+.bytes-header {
+    background-color: #444;
+}
+
+#file-contents {
+    margin-right: 0.75em;
+}
+
 .offset {
     background-color: #444;
 }
 
-#file-contents span {
-    padding: 2px;
-    
+#file-data span {
+    padding: 0.1em;
 }
 
-#file-header {
+#file-bytes-header, .row {
+}
+
+.bytes-header {
     background-color: #444;
 }
 
@@ -32,11 +49,18 @@ body {
 }
 
 .offset {
-    padding-right: 10px;
+    
 }
 
 .byte {
-    
+}
+
+.byte:nth-child(8n-8), .bytes-header:nth-child(8n-8) {
+    margin-right: 0.75em;
+}
+
+.byte:nth-last-child(1), .bytes-header:nth-last-child(1) {
+    margin-right: 0;
 }
 
 .file-a {
@@ -49,4 +73,8 @@ body {
 
 .file-c {
     background-color: #006;
+}
+
+#file-text {
+
 }
