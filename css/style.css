@@ -23,7 +23,7 @@ body {
     margin-right: 0.75em;
 }
 
-.bytes-header, .chars-header {
+.offsets-header, .bytes-header, .chars-header {
     background-color: #444;
 }
 
@@ -39,6 +39,9 @@ span.chars-header {
     padding: 0.1em 0;
 }
 
+.offset-header {
+    margin-bottom: 0.75em;
+}
 
 .offset {
     background-color: #444;
@@ -49,9 +52,18 @@ span.chars-header {
     padding: 0.1em;
 }
 
+#file-bytes-header {
+    margin-bottom: 0.75em;
+}
+
+#file-chars-header {
+    margin-bottom: 0.75em;
+}
+
 #file-bytes-header, #file-chars-header, .row {
     display: flex;
 }
+
 .bytes-header {
     background-color: #444;
 }

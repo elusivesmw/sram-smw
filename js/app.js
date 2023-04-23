@@ -63,7 +63,7 @@ function buildOffsets() {
     
     console.log(rows);
 
-    let cornerDiv = createTextElement("div", "offset-corner", ["offset"], "-");
+    let cornerDiv = createTextElement("div", "", ["offset", "offset-header"], "".padStart(offsetNumChars,"-"));
     fileOffsetsDiv.appendChild(cornerDiv);
 
     for (let r = 0; r < rows; ++r)
@@ -131,7 +131,7 @@ function fillTextTable() {
             if (pos >= len) break; // in the event the last row isn't full
 
             // text
-            let char = stripControlChars(pos);
+            let char = byteToChar(pos);
             let id = "text-" + pos;
             let span = createTextElement("span", id, ["text"], char);
             rowDiv.appendChild(span);
@@ -143,12 +143,17 @@ function fillTextTable() {
 
 
 
-function stripControlChars (i) {
+function byteToChar (i) {
     let charcode = sramFile[i];
-    if (charcode < 32 || (charcode > 126 && charcode < 160)) {
+    // control chars to .
+    if (charcode < 0x20 || (charcode > 0x7E && charcode < 0xA0)) {
         return ".";
     }
-    // need to html encode these
+    // space and 0xFF to nbsp;
+    if (charcode == 0x20 || charcode == 0xFF) return "\u00A0";
+    // soft hypen to hyphen
+    if (charcode == 0xAD) return "-";
+    // otherwise get the char
     let char = String.fromCharCode(charcode);
     console.log(i + " = " + char);
     return char;
@@ -163,7 +168,7 @@ function createTextElement(type, id, classList, text) {
     }
     const elText = document.createTextNode(text);
     el.appendChild(elText);
-    
+    //el.innerHTML = text;
     return el;
 }
 
