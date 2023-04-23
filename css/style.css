@@ -18,10 +18,12 @@ body {
 }
 
 #file-offsets {
+    display: flex;
+    flex-direction: column;
     margin-right: 0.75em;
 }
 
-.bytes-header {
+.bytes-header, .chars-header {
     background-color: #444;
 }
 
@@ -29,27 +31,33 @@ body {
     margin-right: 0.75em;
 }
 
+#file-text span.chars-header, #file-text span.text {
+    padding: 0.1em 0;
+}
+
+span.chars-header {
+    padding: 0.1em 0;
+}
+
+
 .offset {
     background-color: #444;
+    padding: 0.1em;
 }
 
 #file-data span {
     padding: 0.1em;
 }
 
-#file-bytes-header, .row {
+#file-bytes-header, #file-chars-header, .row {
+    display: flex;
 }
-
 .bytes-header {
     background-color: #444;
 }
 
 #file-bytes {
 
-}
-
-.offset {
-    
 }
 
 .byte {
@@ -73,8 +81,4 @@ body {
 
 .file-c {
     background-color: #006;
-}
-
-#file-text {
-
 }

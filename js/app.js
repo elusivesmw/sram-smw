@@ -144,12 +144,13 @@ function fillTextTable() {
 
 
 function stripControlChars (i) {
-    if (i < 32 || i > 126) {
+    let charcode = sramFile[i];
+    if (charcode < 32 || (charcode > 126 && charcode < 160)) {
         return ".";
     }
     // need to html encode these
-    let char = String.fromCharCode(sramFile[i]);
-    console.log(char);
+    let char = String.fromCharCode(charcode);
+    console.log(i + " = " + char);
     return char;
 }
 
