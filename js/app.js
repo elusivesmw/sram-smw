@@ -222,7 +222,6 @@ function createTextElement(type, text) {
 // init
 buildTableHeader();
 
-
 class FileData {
     constructor (pos) {
         const SlotSize = 143;
@@ -262,7 +261,7 @@ class FileData {
         if (slotPos < OverworldLevelSettingFlags + OverworldLevelSettingFlagsLength) {
             region = OverworldLevelSettingFlags;
             index = slotPos - OverworldLevelSettingFlags;
-            regionText = "Level {LevelEntrances.Get[index]:X3}";
+            regionText = "Level " + this.levelEntrance(index);
         } else if (slotPos >= OverworldEventFlags && slotPos < (OverworldEventFlags + OverworldEventFlagsLength)) {
             region = OverworldEventFlags;
             index = slotPos - OverworldEventFlags;
@@ -371,5 +370,10 @@ class FileData {
                 return "Undefined";
         }
     }
-}
 
+    levelEntrance(i) {
+        // 0x000 - 0x024, 0x101 - 0x13B
+        let levelNum = (i > 0x024) ? (0x0DC + i) : i;
+        return levelNum.toString(16).padStart(3, "0")
+    }
+}
