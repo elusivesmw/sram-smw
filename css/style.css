@@ -53,14 +53,16 @@ span.chars-header {
 }
 
 #file-bytes-header {
+    display: flex;
     margin-bottom: 0.75em;
 }
 
 #file-chars-header {
+    display: flex;
     margin-bottom: 0.75em;
 }
 
-#file-bytes-header, #file-chars-header, .row {
+.row {
     display: flex;
 }
 
@@ -73,6 +75,7 @@ span.chars-header {
 }
 
 .byte {
+
 }
 
 .byte:nth-child(8n-8), .bytes-header:nth-child(8n-8) {
@@ -93,4 +96,22 @@ span.chars-header {
 
 .file-c {
     background-color: #006;
+}
+
+#file-text {
+    margin-right: 0.75em;
+}
+
+#byte-info {
+    margin-right: 0.75em;
+}
+
+.selected {
+    background-color: #fff;
+    color: #000;
+}
+
+.selected-header {
+    display: flex;
+    margin-bottom: 0.75em;
 }
