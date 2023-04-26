@@ -2,6 +2,7 @@
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 
+// hex editor
 const fileDataDiv = document.getElementById("hex-editor");
 const offsetsColDiv = document.getElementById("offsets-col");
 const bytesColDiv = document.getElementById("bytes-col");
@@ -11,17 +12,20 @@ const charsColDiv = document.getElementById("chars-col");
 const charsHeaderDiv = document.getElementById("chars-header");
 const charsDataDiv = document.getElementById("chars-data");
 
+// byte info
 const byteInfoDiv = document.getElementById("byte-info");
 
-// 
+// config
 const BYTES_PER_ROW = 16;
+const SHOW_HEADER = true;
 
-
+// global vars
 const fileReader = new FileReader();
 var sramFile = [];
 var sramFileOriginal = [];
-
 var lastSelected = null;
+
+
 
 function openSramFile(e) {
     var file = e.target.files[0];
@@ -40,11 +44,13 @@ function readFile(e) {
 
 
     buildOffsets();
-    fillBytesTable();
+    fillBytesData();
     fillTextTable();
 }
 
-function buildTableHeader() {
+function buildHexEditorHeader() {
+    buildOffsetCorner(2);
+
     for (let i = 0; i < BYTES_PER_ROW; ++i) {
         // bytes
         let val = i.toString(16).padStart(2, "0");
@@ -68,27 +74,31 @@ function buildOffsets() {
 
     let len = sramFile.byteLength;
     let rows = Math.ceil(len / BYTES_PER_ROW);
-    let offsetNumChars = len.toString(16).length;
-    
-    console.log(rows);
+    let maxVal = len - 1;
+    let offsetNumChars = maxVal.toString(16).length;
 
-    let cornerSpan = createTextElement("span", "".padStart(offsetNumChars,"-"));
-    cornerSpan.classList.add("offset");
-    cornerSpan.classList.add("header");
-    offsetsColDiv.appendChild(cornerSpan);
+    buildOffsetCorner(offsetNumChars);
 
-    for (let r = 0; r < rows; ++r)
-    {
+    // build rows
+    for (let r = 0; r < rows; ++r) {
         let offset = (r * BYTES_PER_ROW).toString(16).padStart(offsetNumChars, "0");
         let offsetSpan = createTextElement("span", offset);
-        offsetSpan.id = "offset-" + r;
         offsetSpan.classList.add("offset");
 
         offsetsColDiv.appendChild(offsetSpan);
     }
 }
 
-function fillBytesTable() {
+function buildOffsetCorner(width) {
+    if (SHOW_HEADER) {
+        let cornerSpan = createTextElement("span", "".padStart(width,"-"));
+        cornerSpan.classList.add("offset");
+        cornerSpan.classList.add("header");
+        offsetsColDiv.appendChild(cornerSpan);
+    }
+}
+
+function fillBytesData() {
     bytesDataDiv.innerHTML = "";
 
     let len = sramFile.byteLength;
@@ -105,9 +115,6 @@ function fillBytesTable() {
 
             // bytes
             let val = sramFile[pos].toString(16).padStart(2, "0");
-           
-        
-
             let span = createTextElement("span", val);
             span.classList.add("byte");
             span.dataset.pos = pos;
@@ -137,8 +144,6 @@ function fillBytesTable() {
         }
         // append the row
         bytesDataDiv.appendChild(rowDiv);
-
-       
     }
 }
 
@@ -177,7 +182,6 @@ function byteClick(e) {
     lastSelected = e.target;
 }
 
-
 function fillTextTable() {
     charsDataDiv.innerHTML = "";
 
@@ -205,8 +209,6 @@ function fillTextTable() {
     }
 }
 
-
-
 function byteToChar (i) {
     let charcode = sramFile[i];
     // control chars to .
@@ -221,7 +223,6 @@ function byteToChar (i) {
     return String.fromCharCode(charcode);
 }
 
-
 function createTextElement(type, text) {
     const el = document.createElement(type);
     const elText = document.createTextNode(text);
@@ -230,7 +231,7 @@ function createTextElement(type, text) {
 }
 
 // init
-buildTableHeader();
+buildHexEditorHeader();
 
 class FileData {
     constructor (pos) {
