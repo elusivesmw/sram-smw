@@ -12,44 +12,54 @@ body {
     margin-bottom: 1.5em;
 }
 
-#file-data {
+#hex-editor {
     display: flex;
     font-family: Courier, monospace;
 }
 
+.row {
+    display: flex;
+}
+
+/* columns */
 #offsets-col {
     display: flex;
     flex-direction: column;
     margin-right: 0.75em;
 }
 
-.offsets-header, .bytes-header, .chars-header {
-    background-color: #444;
+#offsets-col span {
+    display: block;
+    padding: 0.1em;
 }
 
 #bytes-col {
     margin-right: 0.75em;
 }
 
-#chars-col span.chars-header, #chars-col span.text {
+#bytes-col span {
+    padding: 0.1em;
+}
+
+#chars-col {
+    margin-right: 0.75em;
+}
+
+#chars-col span {
     padding: 0.1em 0;
 }
 
-span.chars-header {
-    padding: 0.1em 0;
-}
-
-.offset-header {
-    margin-bottom: 0.75em;
+/* headers */
+.header {
+    background-color: #444;
 }
 
 .offset {
     background-color: #444;
-    padding: 0.1em;
 }
 
-#file-data span {
-    padding: 0.1em;
+.offset.header {
+    margin-bottom: 0.75em;
 }
 
 #bytes-header {
@@ -62,30 +72,17 @@ span.chars-header {
     margin-bottom: 0.75em;
 }
 
-.row {
-    display: flex;
-}
+/* 8 byte spacing */
 
-.bytes-header {
-    background-color: #444;
-}
-
-#bytes-data {
-
-}
-
-.byte {
-
-}
-
-.byte:nth-child(8n-8), .bytes-header:nth-child(8n-8) {
+.byte:nth-child(8n-8) {
     margin-right: 0.75em;
 }
 
-.byte:nth-last-child(1), .bytes-header:nth-last-child(1) {
+.byte:nth-last-child(1) {
     margin-right: 0;
 }
 
+/* region highlighting */
 .file-a {
     background-color: #600;
 }
@@ -107,14 +104,6 @@ span.chars-header {
     background-color: #226;
 }
 
-#chars-col {
-    margin-right: 0.75em;
-}
-
-#byte-info {
-    margin-right: 0.75em;
-}
-
 .selected {
     background-color: #fff !important;
     color: #000 !important;
@@ -123,4 +112,9 @@ span.chars-header {
 .selected-header {
     display: flex;
     margin-bottom: 0.75em;
+}
+
+/* selected byte info */
+#byte-info {
+    margin-right: 0.75em;
 }

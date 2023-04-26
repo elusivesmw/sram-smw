@@ -2,7 +2,7 @@
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 
-const fileDataDiv = document.getElementById("file-data");
+const fileDataDiv = document.getElementById("hex-editor");
 const offsetsColDiv = document.getElementById("offsets-col");
 const bytesColDiv = document.getElementById("bytes-col");
 const bytesHeaderDiv = document.getElementById("bytes-header");
@@ -50,13 +50,15 @@ function buildTableHeader() {
         let val = i.toString(16).padStart(2, "0");
         let span = createTextElement("span", val);
         span.id = "bytes-header-" + i;
-        span.classList.add("bytes-header");
+        span.classList.add("byte");
+        span.classList.add("header");
         bytesHeaderDiv.appendChild(span);
 
         // chars
         span = createTextElement("span", "-");
         span.id = "chars-header-" + i;
-        span.classList.add("chars-header");
+        span.classList.add("char");
+        span.classList.add("header");
         charsHeaderDiv.appendChild(span);
     } 
 }
@@ -70,19 +72,19 @@ function buildOffsets() {
     
     console.log(rows);
 
-    let cornerDiv = createTextElement("div", "".padStart(offsetNumChars,"-"));
-    cornerDiv.classList.add("offset");
-    cornerDiv.classList.add("offset-header");
-    offsetsColDiv.appendChild(cornerDiv);
+    let cornerSpan = createTextElement("span", "".padStart(offsetNumChars,"-"));
+    cornerSpan.classList.add("offset");
+    cornerSpan.classList.add("header");
+    offsetsColDiv.appendChild(cornerSpan);
 
     for (let r = 0; r < rows; ++r)
     {
         let offset = (r * BYTES_PER_ROW).toString(16).padStart(offsetNumChars, "0");
-        let offsetDiv = createTextElement("div", offset);
-        offsetDiv.id = "offset-" + r;
-        offsetDiv.classList.add("offset");
+        let offsetSpan = createTextElement("span", offset);
+        offsetSpan.id = "offset-" + r;
+        offsetSpan.classList.add("offset");
 
-        offsetsColDiv.appendChild(offsetDiv);
+        offsetsColDiv.appendChild(offsetSpan);
     }
 }
 
