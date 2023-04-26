@@ -89,13 +89,22 @@ span.chars-header {
 .file-a {
     background-color: #600;
 }
+.file-a.backup {
+    background-color: #622;
+}
 
 .file-b {
     background-color: #060;
 }
+.file-b.backup {
+    background-color: #262;
+}
 
 .file-c {
     background-color: #006;
+}
+.file-c.backup {
+    background-color: #226;
 }
 
 #file-text {
@@ -107,8 +116,8 @@ span.chars-header {
 }
 
 .selected {
-    background-color: #fff;
-    color: #000;
+    background-color: #fff !important;
+    color: #000 !important;
 }
 
 .selected-header {

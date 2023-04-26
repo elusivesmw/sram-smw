@@ -118,8 +118,16 @@ function fillBytesTable() {
                 span.classList.add("file-b");
             } else if (pos >= slotLength*2 && pos < slotLength*3) {
                 span.classList.add("file-c");
-            }
-
+            } else if (pos >= slotLength*3 && pos < slotLength*4) {
+                span.classList.add("file-a");
+                span.classList.add("backup");
+            } else if (pos >= slotLength*4 && pos < slotLength*5) {
+                span.classList.add("file-b");
+                span.classList.add("backup");
+            } else if (pos >= slotLength*5 && pos < slotLength*6) {
+                span.classList.add("file-c");
+                span.classList.add("backup");
+            } 
             
             span.addEventListener("click", byteClick);
 
@@ -224,15 +232,11 @@ buildTableHeader();
 
 class FileData {
     constructor (pos) {
-        const SlotSize = 143;
         const OverworldLevelSettingFlags = 0x0000; // 96 bytes
-        const OverworldLevelSettingFlagsLength = 96;
         const OverworldEventFlags = 0x0060; // 15 bytes
-        const OverworldEventFlagsLength = 15;
         const CurrentSubmapMario = 0x006F; // 1 byte
         const CurrentSubmapLuigi = 0x0070; // 1 byte
         const PlayerAnimation = 0x0071; // 4 bytes
-        const PlayerAnimationLength = 4;
         const OverworldXPosMario = 0x0075; // 2 bytes
         const OverworldYPosMario = 0x0077; // 2 bytes
         const OverworldXPosLuigi = 0x0079; // 2 bytes
@@ -241,16 +245,14 @@ class FileData {
         const PointerOverworldYPosMario = 0x007F; // 2 bytes
         const PointerOverworldXPosLuigi = 0x0081; // 2 bytes
         const PointerOverworldYPosLuigi = 0x0083; // 2 bytes
-        const SwitchBlockFlags = 0x0085; // 4 bytes (green; yellow; blue; red)
-        const SwitchBlockFlagsLength = 4;
-        const SwitchBlockFlagsGreen = 0x0085;
-        const SwitchBlockFlagsYellow = 0x0086;
-        const SwitchBlockFlagsBlue = 0x0087;
-        const SwitchBlockFlagsRed = 0x0088;
+        const SwitchBlockFlagsGreen = 0x0085; // 1 byte
+        const SwitchBlockFlagsYellow = 0x0086; // 1 byte
+        const SwitchBlockFlagsBlue = 0x0087; // 1 byte
+        const SwitchBlockFlagsRed = 0x0088; // 1 byte
         const EmptyRegion = 0x0089; // 3 bytes
-        const EmptyRegionLength = 3;
         const NumberEventsTriggered = 0x008C; // 1 byte
         const ChecksumComplement = 0x008D // 2 bytes
+        const SlotSize = 143;
 
         let slot = Math.floor(pos / SlotSize);
         let slotPos = pos % SlotSize; // position relative to file
@@ -258,11 +260,11 @@ class FileData {
         let index = 0;
         let regionText = "";
 
-        if (slotPos < OverworldLevelSettingFlags + OverworldLevelSettingFlagsLength) {
+        if (slotPos >= OverworldLevelSettingFlags && slotPos < OverworldEventFlags) {
             region = OverworldLevelSettingFlags;
             index = slotPos - OverworldLevelSettingFlags;
             regionText = "Level " + this.levelEntrance(index);
-        } else if (slotPos >= OverworldEventFlags && slotPos < (OverworldEventFlags + OverworldEventFlagsLength)) {
+        } else if (slotPos >= OverworldEventFlags && slotPos < CurrentSubmapMario) {
             region = OverworldEventFlags;
             index = slotPos - OverworldEventFlags;
             regionText = "Event flags " + index;
@@ -274,42 +276,42 @@ class FileData {
             region = CurrentSubmapLuigi;
             index = 0;
             regionText = "Current Submap (Luigi)";
-        } else if (slotPos >= PlayerAnimation && slotPos < (PlayerAnimation + PlayerAnimationLength)) {
+        } else if (slotPos >= PlayerAnimation && slotPos < OverworldXPosMario) {
             region = PlayerAnimation;
             index = slotPos - PlayerAnimation;
             regionText = "Player animation " + index;
-        } else if (slotPos == OverworldXPosMario || slotPos == (OverworldXPosMario + 1)) {
+        } else if (slotPos >= OverworldXPosMario && slotPos < OverworldYPosMario) {
             region = OverworldXPosMario;
             index = slotPos - OverworldXPosMario;
             regionText = "Overworld X Position (Mario) " + index;
-        } else if (slotPos == OverworldYPosMario || slotPos == (OverworldYPosMario + 1)) {
+        } else if (slotPos >= OverworldYPosMario && slotPos < OverworldXPosLuigi) {
             region = OverworldYPosMario;
             index = slotPos - OverworldYPosMario;
             regionText = "Overworld Y Position (Mario) " + index;
-        } else if (slotPos == OverworldXPosLuigi || slotPos == (OverworldXPosLuigi + 1)) {
+        } else if (slotPos >= OverworldXPosLuigi && slotPos < OverworldYPosLuigi) {
             region = OverworldXPosLuigi;
             index = slotPos - OverworldXPosLuigi;
             regionText = "Overworld X Position (Luigi) " + index;
-        } else if (slotPos == OverworldYPosLuigi || slotPos == (OverworldYPosLuigi + 1)) {
+        } else if (slotPos >= OverworldYPosLuigi && slotPos < PointerOverworldXPosMario) {
             region = OverworldYPosLuigi;
             index = slotPos - OverworldYPosLuigi;
             regionText = "Overworld Y Position (Luigi) " + index;
-        } else if (slotPos == PointerOverworldXPosMario || slotPos == (PointerOverworldXPosMario + 1)) {
+        } else if (slotPos >= PointerOverworldXPosMario && slotPos < PointerOverworldYPosMario) {
             region = PointerOverworldXPosMario;
             index = slotPos - PointerOverworldXPosMario;
             regionText = "Pointer to Overworld X Position (Mario) " + index;
-        } else if (slotPos == PointerOverworldYPosMario || slotPos == (PointerOverworldYPosMario + 1)) {
+        } else if (slotPos >= PointerOverworldYPosMario && slotPos < PointerOverworldXPosLuigi) {
             region = PointerOverworldYPosMario;
             index = slotPos - PointerOverworldYPosMario;
             regionText = "Pointer to Overworld Y Position (Mario) " + index;
-        } else if (slotPos == PointerOverworldXPosLuigi || slotPos == (PointerOverworldXPosLuigi + 1)) {
+        } else if (slotPos >= PointerOverworldXPosLuigi && slotPos < PointerOverworldYPosLuigi) {
             region = PointerOverworldXPosLuigi;
             index = slotPos - PointerOverworldXPosLuigi;
             regionText = "Pointer to Overworld X Position (Luigi) " + index;
-        } else if (slotPos == PointerOverworldYPosLuigi || slotPos == (PointerOverworldYPosLuigi + 1)) {
+        } else if (slotPos >= PointerOverworldYPosLuigi && slotPos < SwitchBlockFlagsGreen) {
             region = PointerOverworldYPosLuigi;
             index = slotPos - PointerOverworldYPosLuigi;
-            regionText = "Pointer to Overworld Y Position (Luigi)";
+            regionText = "Pointer to Overworld Y Position (Luigi) " + index;
         } else if (slotPos == SwitchBlockFlagsGreen) {
             region = SwitchBlockFlagsGreen;
             index = 0;
@@ -326,7 +328,7 @@ class FileData {
             region = SwitchBlockFlagsRed;
             index = 0;
             regionText = "Red Switch Block flag";
-        } else if (slotPos >= EmptyRegion && slotPos < (EmptyRegion + EmptyRegionLength)) {
+        } else if (slotPos >= EmptyRegion && slotPos < NumberEventsTriggered) {
             region = EmptyRegion;
             index = slotPos - EmptyRegion;
             regionText = "Empty";
@@ -334,7 +336,7 @@ class FileData {
             region = NumberEventsTriggered;
             index = 0;
             regionText = "Number of Events Triggered";
-        } else if (slotPos >= ChecksumComplement || slotPos == (ChecksumComplement + 1)) {
+        } else if (slotPos >= ChecksumComplement && slotPos < SlotSize) {
             region = ChecksumComplement;
             index = slotPos - ChecksumComplement;
             regionText = "Checksum Complement " + index;
