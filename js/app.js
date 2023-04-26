@@ -3,13 +3,13 @@ const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 
 const fileDataDiv = document.getElementById("file-data");
-const fileOffsetsDiv = document.getElementById("file-offsets");
-const fileContentsDiv = document.getElementById("file-contents");
-const fileBytesHeaderDiv = document.getElementById("file-bytes-header");
-const fileBytesDiv = document.getElementById("file-bytes");
-const fileTextDiv = document.getElementById("file-text");
-const fileCharsHeaderDiv = document.getElementById("file-chars-header");
-const fileCharsDiv = document.getElementById("file-chars");
+const offsetsColDiv = document.getElementById("offsets-col");
+const bytesColDiv = document.getElementById("bytes-col");
+const bytesHeaderDiv = document.getElementById("bytes-header");
+const bytesDataDiv = document.getElementById("bytes-data");
+const charsColDiv = document.getElementById("chars-col");
+const charsHeaderDiv = document.getElementById("chars-header");
+const charsDataDiv = document.getElementById("chars-data");
 
 const byteInfoDiv = document.getElementById("byte-info");
 
@@ -51,18 +51,18 @@ function buildTableHeader() {
         let span = createTextElement("span", val);
         span.id = "bytes-header-" + i;
         span.classList.add("bytes-header");
-        fileBytesHeaderDiv.appendChild(span);
+        bytesHeaderDiv.appendChild(span);
 
         // chars
         span = createTextElement("span", "-");
         span.id = "chars-header-" + i;
         span.classList.add("chars-header");
-        fileCharsHeaderDiv.appendChild(span);
+        charsHeaderDiv.appendChild(span);
     } 
 }
 
 function buildOffsets() {
-    fileOffsetsDiv.innerHTML = "";
+    offsetsColDiv.innerHTML = "";
 
     let len = sramFile.byteLength;
     let rows = Math.ceil(len / BYTES_PER_ROW);
@@ -73,7 +73,7 @@ function buildOffsets() {
     let cornerDiv = createTextElement("div", "".padStart(offsetNumChars,"-"));
     cornerDiv.classList.add("offset");
     cornerDiv.classList.add("offset-header");
-    fileOffsetsDiv.appendChild(cornerDiv);
+    offsetsColDiv.appendChild(cornerDiv);
 
     for (let r = 0; r < rows; ++r)
     {
@@ -82,12 +82,12 @@ function buildOffsets() {
         offsetDiv.id = "offset-" + r;
         offsetDiv.classList.add("offset");
 
-        fileOffsetsDiv.appendChild(offsetDiv);
+        offsetsColDiv.appendChild(offsetDiv);
     }
 }
 
 function fillBytesTable() {
-    fileBytesDiv.innerHTML = "";
+    bytesDataDiv.innerHTML = "";
 
     let len = sramFile.byteLength;
     let rows = Math.ceil(len / BYTES_PER_ROW);
@@ -134,7 +134,7 @@ function fillBytesTable() {
             rowDiv.appendChild(span);
         }
         // append the row
-        fileBytesDiv.appendChild(rowDiv);
+        bytesDataDiv.appendChild(rowDiv);
 
        
     }
@@ -177,7 +177,7 @@ function byteClick(e) {
 
 
 function fillTextTable() {
-    fileCharsDiv.innerHTML = "";
+    charsDataDiv.innerHTML = "";
 
     let len = sramFile.byteLength;
     let rows = Math.ceil(len / BYTES_PER_ROW);
@@ -199,7 +199,7 @@ function fillTextTable() {
             rowDiv.appendChild(span);
         }
         // append the row
-        fileCharsDiv.appendChild(rowDiv);
+        charsDataDiv.appendChild(rowDiv);
     }
 }
 

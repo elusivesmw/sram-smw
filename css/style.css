@@ -17,7 +17,7 @@ body {
     font-family: Courier, monospace;
 }
 
-#file-offsets {
+#offsets-col {
     display: flex;
     flex-direction: column;
     margin-right: 0.75em;
@@ -27,11 +27,11 @@ body {
     background-color: #444;
 }
 
-#file-contents {
+#bytes-col {
     margin-right: 0.75em;
 }
 
-#file-text span.chars-header, #file-text span.text {
+#chars-col span.chars-header, #chars-col span.text {
     padding: 0.1em 0;
 }
 
@@ -52,12 +52,12 @@ span.chars-header {
     padding: 0.1em;
 }
 
-#file-bytes-header {
+#bytes-header {
     display: flex;
     margin-bottom: 0.75em;
 }
 
-#file-chars-header {
+#chars-header {
     display: flex;
     margin-bottom: 0.75em;
 }
@@ -70,7 +70,7 @@ span.chars-header {
     background-color: #444;
 }
 
-#file-bytes {
+#bytes-data {
 
 }
 
@@ -107,7 +107,7 @@ span.chars-header {
     background-color: #226;
 }
 
-#file-text {
+#chars-col {
     margin-right: 0.75em;
 }
 
