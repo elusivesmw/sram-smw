@@ -12,6 +12,10 @@ body {
     margin-bottom: 1.5em;
 }
 
+#layout {
+    display: flex;
+}
+
 #hex-editor {
     display: flex;
     font-family: Courier, monospace;
@@ -66,9 +70,6 @@ body {
     display: flex;
     margin-bottom: 0.75em;
 }
-#bytes-header:empty {
-    display: none;
-}
 
 #chars-header {
     display: flex;
@@ -112,11 +113,6 @@ body {
     color: #000 !important;
 }
 
-.selected-header {
-    display: flex;
-    margin-bottom: 0.75em;
-}
-
 /* selected byte info */
 #byte-info {
     margin-right: 0.75em;
@@ -125,4 +121,17 @@ body {
 /* important */
 .hidden {
     display: none !important;
+}
+
+#selection {
+    border: 1px solid #888;
+    padding: 0.5em;
+}
+
+#selection:empty {
+    display: none;
+}
+
+.selection-data {
+    display: block;
 }

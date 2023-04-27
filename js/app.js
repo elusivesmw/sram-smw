@@ -12,8 +12,8 @@ const charsColDiv = document.getElementById("chars-col");
 const charsHeaderDiv = document.getElementById("chars-header");
 const charsDataDiv = document.getElementById("chars-data");
 
-// byte info
-const byteInfoDiv = document.getElementById("byte-info");
+// selected byte data
+const selectionDiv = document.getElementById("selection");
 
 // consts
 const BYTES_PER_ROW = 16;
@@ -64,7 +64,6 @@ function buildHexEditorHeader() {
 
         // chars
         span = createTextElement("span", "-");
-        span.id = "chars-header-" + i;
         span.classList.add("char");
         span.classList.add("header");
         charsHeaderDiv.appendChild(span);
@@ -137,23 +136,7 @@ function fillBytesData() {
             span.dataset.pos = pos;
 
             // highlight save slot
-            const slotLength = 143;
-            if (pos < slotLength) {
-                span.classList.add("file-a");
-            } else if (pos >= slotLength && pos < slotLength*2) {
-                span.classList.add("file-b");
-            } else if (pos >= slotLength*2 && pos < slotLength*3) {
-                span.classList.add("file-c");
-            } else if (pos >= slotLength*3 && pos < slotLength*4) {
-                span.classList.add("file-a");
-                span.classList.add("backup");
-            } else if (pos >= slotLength*4 && pos < slotLength*5) {
-                span.classList.add("file-b");
-                span.classList.add("backup");
-            } else if (pos >= slotLength*5 && pos < slotLength*6) {
-                span.classList.add("file-c");
-                span.classList.add("backup");
-            } 
+            addSlotClasses(span, pos);
             
             span.addEventListener("click", byteClick);
 
@@ -164,8 +147,28 @@ function fillBytesData() {
     }
 }
 
+function addSlotClasses(target, pos) {
+    const slotLength = 143;
+    if (pos < slotLength) {
+        target.classList.add("file-a");
+    } else if (pos >= slotLength && pos < slotLength*2) {
+        target.classList.add("file-b");
+    } else if (pos >= slotLength*2 && pos < slotLength*3) {
+        target.classList.add("file-c");
+    } else if (pos >= slotLength*3 && pos < slotLength*4) {
+        target.classList.add("file-a");
+        target.classList.add("backup");
+    } else if (pos >= slotLength*4 && pos < slotLength*5) {
+        target.classList.add("file-b");
+        target.classList.add("backup");
+    } else if (pos >= slotLength*5 && pos < slotLength*6) {
+        target.classList.add("file-c");
+        target.classList.add("backup");
+    } 
+}
+
 function byteClick(e) {
-    byteInfoDiv.innerHTML = "";
+    selectionDiv.innerHTML = "";
 
     // move selected class
     if (lastSelected != null) {
@@ -180,20 +183,19 @@ function byteClick(e) {
     console.log(pos.toString(16));
 
     // header
-    let selectedHeaderDiv = document.createElement("div");
-    selectedHeaderDiv.classList.add("selected-header");
-    let selectedHeaderSpan = createTextElement("span", view.SlotName + ": "+ view.RegionText);
-    selectedHeaderSpan.classList.add("chars-header")
-    selectedHeaderDiv.appendChild(selectedHeaderSpan);
+    let selectionFileSpan = createTextElement("span", view.SlotName);
+    selectionFileSpan.classList.add("selection-data")
+    addSlotClasses(selectionFileSpan, pos);
+    selectionDiv.appendChild(selectionFileSpan);
+
+    let selectionRegionSpan = createTextElement("span", view.RegionText);
+    selectionRegionSpan.classList.add("selection-data")
+    selectionDiv.appendChild(selectionRegionSpan);
 
     // info
-    let selectedByteInfo = document.createElement("div");
-    selectedByteInfo.classList.add("row");
-    let selectedValSpan = createTextElement("span", val);
-    selectedByteInfo.appendChild(selectedValSpan);
-
-    byteInfoDiv.appendChild(selectedHeaderDiv);
-    byteInfoDiv.appendChild(selectedByteInfo);
+    let selectionValSpan = createTextElement("span", val);
+    selectionValSpan.classList.add("selection-data");
+    selectionDiv.appendChild(selectionValSpan);
 
     // save last
     lastSelected = e.target;
