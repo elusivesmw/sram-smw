@@ -15,9 +15,11 @@ const charsDataDiv = document.getElementById("chars-data");
 // byte info
 const byteInfoDiv = document.getElementById("byte-info");
 
-// config
+// consts
 const BYTES_PER_ROW = 16;
-const SHOW_HEADER = true;
+
+// config
+var showHeader = false;
 
 // global vars
 const fileReader = new FileReader();
@@ -42,14 +44,13 @@ function readFile(e) {
     sramFileOriginal = new Uint8Array(fileReader.result); // copy of values
     console.log(sramFile);
 
-
     buildOffsets();
     fillBytesData();
     fillTextTable();
 }
 
 function buildHexEditorHeader() {
-    buildOffsetCorner(2);
+    buildOffsetsHeader(2);
 
     for (let i = 0; i < BYTES_PER_ROW; ++i) {
         // bytes
@@ -59,6 +60,7 @@ function buildHexEditorHeader() {
         span.classList.add("byte");
         span.classList.add("header");
         bytesHeaderDiv.appendChild(span);
+        if (!showHeader) bytesHeaderDiv.classList.add("hidden");
 
         // chars
         span = createTextElement("span", "-");
@@ -66,6 +68,7 @@ function buildHexEditorHeader() {
         span.classList.add("char");
         span.classList.add("header");
         charsHeaderDiv.appendChild(span);
+        if (!showHeader) charsHeaderDiv.classList.add("hidden");
     } 
 }
 
@@ -77,7 +80,7 @@ function buildOffsets() {
     let maxVal = len - 1;
     let offsetNumChars = maxVal.toString(16).length;
 
-    buildOffsetCorner(offsetNumChars);
+    buildOffsetsHeader(offsetNumChars);
 
     // build rows
     for (let r = 0; r < rows; ++r) {
@@ -89,12 +92,26 @@ function buildOffsets() {
     }
 }
 
-function buildOffsetCorner(width) {
-    if (SHOW_HEADER) {
-        let cornerSpan = createTextElement("span", "".padStart(width,"-"));
-        cornerSpan.classList.add("offset");
-        cornerSpan.classList.add("header");
-        offsetsColDiv.appendChild(cornerSpan);
+function buildOffsetsHeader(width) {
+    let offsetsHeaderSpan = createTextElement("span", "".padStart(width,"-"));
+    offsetsHeaderSpan.id = "offsets-header";
+    offsetsHeaderSpan.classList.add("offset");
+    offsetsHeaderSpan.classList.add("header");
+    if (!showHeader) offsetsHeaderSpan.classList.add("hidden");
+    offsetsColDiv.appendChild(offsetsHeaderSpan);
+}
+
+function toggleHeader() {
+    const offsetsHeaderSpan = document.getElementById("offsets-header");
+    showHeader = !showHeader;
+    if (showHeader) {
+        offsetsHeaderSpan.classList.remove("hidden");
+        bytesHeaderDiv.classList.remove("hidden");
+        charsHeaderDiv.classList.remove("hidden");
+    } else {
+        offsetsHeaderSpan.classList.add("hidden");
+        bytesHeaderDiv.classList.add("hidden");
+        charsHeaderDiv.classList.add("hidden");
     }
 }
 
@@ -229,6 +246,7 @@ function createTextElement(type, text) {
     el.appendChild(elText);
     return el;
 }
+
 
 // init
 buildHexEditorHeader();

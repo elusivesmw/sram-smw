@@ -66,6 +66,9 @@ body {
     display: flex;
     margin-bottom: 0.75em;
 }
+#bytes-header:empty {
+    display: none;
+}
 
 #chars-header {
     display: flex;
@@ -117,4 +120,9 @@ body {
 /* selected byte info */
 #byte-info {
     margin-right: 0.75em;
+}
+
+/* important */
+.hidden {
+    display: none !important;
 }
