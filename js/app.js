@@ -167,8 +167,6 @@ function addSlotClasses(target, pos) {
 }
 
 function byteClick(e) {
-    selectionDiv.innerHTML = "";
-
     // move selected class
     const lastSelected = document.getElementsByClassName("selected");
     for (const ls of lastSelected) {
@@ -176,10 +174,17 @@ function byteClick(e) {
     }
     e.target.classList.add("selected");
 
+    // update selection data
+    updateSelectionData(e.target);
+}
+
+function updateSelectionData(target) {
+    selectionDiv.innerHTML = "";
+
     // get data
-    let pos = e.target.dataset.pos;
+    let pos = target.dataset.pos;
     let view = new FileData(pos);
-    let val = e.target.innerHTML;
+    let val = target.innerHTML;
     console.log(pos.toString(16));
 
     // header
@@ -242,9 +247,13 @@ function docKeyPress(e) {
 function advanceSelection(target, pos) {
     ++pos;
     if (pos < sramFile.byteLength) {
+        // update selected span
         target.classList.remove("selected");
         const nextTarget = document.querySelector("span[data-pos='" + pos + "']");
         nextTarget.classList.add("selected");
+
+        // update selection data
+        updateSelectionData(nextTarget);
     }
 }
 
