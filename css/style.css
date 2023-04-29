@@ -8,8 +8,23 @@ body {
     margin: 1em;
 }
 
-#open-sram-div {
+#file {
+    display: flex;
     margin-bottom: 1.5em;
+}
+
+#open-file {
+    
+}
+
+input[type="file"] {
+    margin-right: 1em;
+    font-size: 1em;
+}
+
+#file-info {
+    display: flex;
+    align-items: center;
 }
 
 #layout {
@@ -111,12 +126,12 @@ body {
 
 /* important */
 .changed {
-    background-color: #220 !important;
+    background-color: #440 !important;
 }
 
 .selected {
     position: relative;
-    background-color: #066 !important;
+    background-color: #088 !important;
     color: #fff !important;
 }
 
@@ -124,7 +139,7 @@ body {
     position: relative;
     display: inline-block;
     width: 2ch;
-    background-color: #660 !important;
+    background-color: #880 !important;
     color: #fff !important;
 }
 

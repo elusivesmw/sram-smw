@@ -2,6 +2,7 @@
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 document.addEventListener("keypress", docKeyPress);
+const fileInfoDiv = document.getElementById("file-info");
 
 // hex editor
 const fileDataDiv = document.getElementById("hex-editor");
@@ -42,6 +43,7 @@ function readFile(e) {
     sramFile = new Uint8Array(fileReader.result)
     sramFileOriginal = sramFile.slice(0); // copy of values
     console.log(sramFile);
+    fileInfoDiv.innerHTML = sramFile.byteLength + " bytes";
 
     buildOffsets();
     fillBytesData();
