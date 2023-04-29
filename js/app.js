@@ -3,6 +3,8 @@ const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 document.addEventListener("keypress", docKeyPress);
 const fileInfoDiv = document.getElementById("file-info");
+const saveSramBtn = document.getElementById("save-sram-btn");
+saveSramBtn.addEventListener("click", saveSramFile);
 
 // hex editor
 const fileDataDiv = document.getElementById("hex-editor");
@@ -27,11 +29,13 @@ var showHeader = false;
 const fileReader = new FileReader();
 var sramFile = [];
 var sramFileOriginal = [];
+var openFileName = "";
 
 
 function openSramFile(e) {
     var file = e.target.files[0];
     if (!file) return;
+    openFileName = file.name;
 
     fileReader.addEventListener("load", readFile);
     fileReader.readAsArrayBuffer(file);
@@ -40,14 +44,30 @@ function openSramFile(e) {
 function readFile(e) {
     // is load event only good enough?
     console.log(e);
-    sramFile = new Uint8Array(fileReader.result)
+    sramFile = new Uint8Array(fileReader.result);
+    console.log(fileReader);
     sramFileOriginal = sramFile.slice(0); // copy of values
     console.log(sramFile);
-    fileInfoDiv.innerHTML = sramFile.byteLength + " bytes";
+
+    fileInfoDiv.innerHTML = "";
+    const elText = document.createTextNode(sramFile.byteLength + " bytes");
+    fileInfoDiv.appendChild(elText);
 
     buildOffsets();
     fillBytesData();
     fillTextTable();
+}
+
+function saveSramFile(e) {
+    console.log(e);
+
+    if (sramFile) {
+        var blob = new Blob([sramFile], {type: "application/octet-stream"});
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = openFileName;
+        link.click();
+    }
 }
 
 function buildHexEditorHeader() {
