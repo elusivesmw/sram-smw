@@ -240,6 +240,10 @@ function docKeyPress(e) {
     // update byte in hex editor to match array data
     target.innerHTML = newVal;
 
+    // update char in text view
+    const textTarget = document.querySelector("span.text[data-pos='" + pos + "']");
+    textTarget.innerHTML = byteToChar(pos);
+
     // did val change?
     diff(pos);
 }
@@ -314,11 +318,14 @@ function diffAll() {
 function diff(i) {
     let originalByte = sramFileOriginal[i];
     let byte = sramFile[i];
-    let span = document.querySelector("span[data-pos='" + i + "']");
-    if (byte === originalByte) {
-        span.classList.remove("changed");
-    } else {
-        span.classList.add("changed");
+    let spans = document.querySelectorAll("span[data-pos='" + i + "']");
+    console.log(spans.length)
+    for (const span of spans) {
+        if (byte === originalByte) {
+            span.classList.remove("changed");
+        } else {
+            span.classList.add("changed");
+        }
     }
 }
 
