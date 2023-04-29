@@ -2,6 +2,7 @@
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 document.addEventListener("keypress", docKeyPress);
+document.addEventListener("keydown", docKeyDown);
 const fileInfoDiv = document.getElementById("file-info");
 const saveSramBtn = document.getElementById("save-sram-btn");
 saveSramBtn.addEventListener("click", saveSramFile);
@@ -189,7 +190,16 @@ function addSlotClasses(target, pos) {
 }
 
 function byteClick(e) {
-    // move selected class
+    // remove selected
+    deselectAll();
+    //move selected class
+    e.target.classList.add("selected");
+    
+    // update selection data
+    updateSelectionData(e.target);
+}
+
+function deselectAll() {
     const lastSelected = document.getElementsByClassName("selected");
     for (const ls of lastSelected) {
         ls.classList.remove("selected");
@@ -203,10 +213,6 @@ function byteClick(e) {
             ls.innerHTML = "0" + ls.innerHTML;
         }
     }
-    e.target.classList.add("selected");
-
-    // update selection data
-    updateSelectionData(e.target);
 }
 
 function updateSelectionData(target) {
@@ -241,6 +247,8 @@ function docKeyPress(e) {
     // throw out commands
     if (e.ctrlKey) return;
 
+    // TODO: handle enter key
+
     // and non-hex chars
     let num = parseInt(e.key, 16);
     if (isNaN(num)) return;
@@ -253,7 +261,7 @@ function docKeyPress(e) {
     if (selected.length !== 1) return;
     const target = selected[0];
     console.log(target);
-    let pos = target.dataset.pos;
+    let pos = parseInt(target.dataset.pos);
 
     let newVal;
     let buffer = target.dataset.buffer;
@@ -261,7 +269,8 @@ function docKeyPress(e) {
         delete target.dataset.buffer;
         newVal = buffer + num;
 
-        advanceSelection(target, pos);
+        let next = pos + 1;
+        advanceSelection(next);
     } else {
         target.dataset.buffer = num;
         newVal = num;
@@ -279,16 +288,50 @@ function docKeyPress(e) {
     diff(pos);
 }
 
-function advanceSelection(target, pos) {
-    ++pos;
-    if (pos < sramFile.byteLength) {
-        // update selected span
-        target.classList.remove("selected");
-        const nextTarget = document.querySelector("span[data-pos='" + pos + "']");
-        nextTarget.classList.add("selected");
+function advanceSelection(pos) {
+    if (pos < 0) return; // maybe wrap to eof later
+    if (pos >= sramFile.byteLength) return; // maybe wrap to 0 later
 
-        // update selection data
-        updateSelectionData(nextTarget);
+    // remove selected
+    deselectAll();
+    
+    // update selected span
+    const nextTarget = document.querySelector("span[data-pos='" + pos + "']");
+    nextTarget.classList.add("selected");
+
+    // update selection data
+    updateSelectionData(nextTarget);
+}
+
+function docKeyDown(e) {
+    console.log(e);
+
+    // get current selection byte
+    const selected = document.getElementsByClassName("selected");
+    if (selected.length !== 1) return;
+    const target = selected[0];
+    //console.log(target);
+    let pos = parseInt(target.dataset.pos);
+    let next;
+
+    // handle arrow controls 
+    switch (e.key) {
+        case "ArrowLeft":
+            next = pos - 1;
+            advanceSelection(next);
+            break;
+        case "ArrowUp":
+            next = pos - BYTES_PER_ROW;
+            advanceSelection(next);
+            break;
+        case "ArrowDown":
+            next = pos + BYTES_PER_ROW;
+            advanceSelection(next);
+            break;
+        case "ArrowRight":
+            next = pos + 1;
+            advanceSelection(next);
+            break;
     }
 }
 
