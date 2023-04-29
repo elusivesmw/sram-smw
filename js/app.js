@@ -1,6 +1,7 @@
 // dom elements
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
+document.addEventListener("keypress", docKeyPress);
 
 // hex editor
 const fileDataDiv = document.getElementById("hex-editor");
@@ -25,8 +26,6 @@ var showHeader = false;
 const fileReader = new FileReader();
 var sramFile = [];
 var sramFileOriginal = [];
-var lastSelected = null;
-
 
 
 function openSramFile(e) {
@@ -41,7 +40,7 @@ function readFile(e) {
     // is load event only good enough?
     console.log(e);
     sramFile = new Uint8Array(fileReader.result)
-    sramFileOriginal = new Uint8Array(fileReader.result); // copy of values
+    sramFileOriginal = sramFile.slice(0); // copy of values
     console.log(sramFile);
 
     buildOffsets();
@@ -171,8 +170,9 @@ function byteClick(e) {
     selectionDiv.innerHTML = "";
 
     // move selected class
-    if (lastSelected != null) {
-        lastSelected.classList.remove("selected");
+    const lastSelected = document.getElementsByClassName("selected");
+    for (const ls of lastSelected) {
+        ls.classList.remove("selected");
     }
     e.target.classList.add("selected");
 
@@ -195,10 +195,57 @@ function byteClick(e) {
     // info
     let selectionValSpan = createTextElement("span", val);
     selectionValSpan.classList.add("selection-data");
+    selectionValSpan.classList.add("cursor");
     selectionDiv.appendChild(selectionValSpan);
+}
 
-    // save last
-    lastSelected = e.target;
+function docKeyPress(e) {
+    console.log(e);
+    
+    // throw out commands
+    if (e.ctrlKey) return;
+
+    // and non-hex chars
+    let num = parseInt(e.key, 16);
+    if (isNaN(num)) return;
+
+    num = num.toString(16);
+    console.log(num);
+
+    // get current selection byte
+    const selected = document.getElementsByClassName("selected");
+    if (selected.length !== 1) return;
+    const target = selected[0];
+    console.log(target);
+    let pos = target.dataset.pos;
+
+    let newVal;
+    let buffer = target.dataset.buffer;
+    if (buffer) {
+        delete target.dataset.buffer;
+        newVal = buffer + num;
+
+        advanceSelection(target, pos);
+    } else {
+        target.dataset.buffer = num;
+        newVal = num + "&nbsp;";
+    }
+    sramFile[pos] = parseInt(newVal, 16);
+
+    // update byte in hex editor to match array data
+    target.innerHTML = newVal;
+
+    // did val change?
+    diff(pos);
+}
+
+function advanceSelection(target, pos) {
+    ++pos;
+    if (pos < sramFile.byteLength) {
+        target.classList.remove("selected");
+        const nextTarget = document.querySelector("span[data-pos='" + pos + "']");
+        nextTarget.classList.add("selected");
+    }
 }
 
 function fillTextTable() {
@@ -247,6 +294,23 @@ function createTextElement(type, text) {
     const elText = document.createTextNode(text);
     el.appendChild(elText);
     return el;
+}
+
+function diffAll() {
+    for (let i = 0; i < sramFileOriginal.byteLength; ++i) {
+        diff(i);
+    } 
+}
+
+function diff(i) {
+    let originalByte = sramFileOriginal[i];
+    let byte = sramFile[i];
+    let span = document.querySelector("span[data-pos='" + i + "']");
+    if (byte === originalByte) {
+        span.classList.remove("changed");
+    } else {
+        span.classList.add("changed");
+    }
 }
 
 

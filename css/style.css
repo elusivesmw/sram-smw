@@ -91,21 +91,25 @@ body {
     background-color: #600;
 }
 .file-a.backup {
-    background-color: #622;
+    background-color: #633;
 }
 
 .file-b {
     background-color: #060;
 }
 .file-b.backup {
-    background-color: #262;
+    background-color: #363;
 }
 
 .file-c {
     background-color: #006;
 }
 .file-c.backup {
-    background-color: #226;
+    background-color: #336;
+}
+
+.changed {
+    background-color: #000 !important;
 }
 
 .selected {
@@ -113,16 +117,12 @@ body {
     color: #000 !important;
 }
 
-/* selected byte info */
-#byte-info {
-    margin-right: 0.75em;
-}
-
 /* important */
 .hidden {
     display: none !important;
 }
 
+/* selected byte info */
 #selection {
     border: 1px solid #888;
     padding: 0.5em;
@@ -134,4 +134,9 @@ body {
 
 .selection-data {
     display: block;
+}
+
+span.cursor {
+    /* TODO: make this blink */
+    background-color: #000;
 }
