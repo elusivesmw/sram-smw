@@ -1,6 +1,6 @@
 html {
     font-family: Arial, Helvetica, sans-serif;
-    background-color: #222;
+    background-color: #000;
     color: #fff;
 }
 
@@ -55,11 +55,11 @@ body {
 
 /* headers */
 .header {
-    background-color: #444;
+    background-color: #222;
 }
 
 .offset {
-    background-color: #444;
+    background-color: #222;
 }
 
 .offset.header {
@@ -88,36 +88,67 @@ body {
 
 /* region highlighting */
 .file-a {
-    background-color: #600;
+    background-color: #300;
 }
 .file-a.backup {
-    background-color: #633;
+    background-color: #322;
 }
 
 .file-b {
-    background-color: #060;
+    background-color: #030;
 }
 .file-b.backup {
-    background-color: #363;
+    background-color: #232;
 }
 
 .file-c {
-    background-color: #006;
+    background-color: #003;
 }
 .file-c.backup {
-    background-color: #336;
+    background-color: #223;
 }
 
+
+/* important */
 .changed {
     background-color: #000 !important;
 }
 
 .selected {
-    background-color: #fff !important;
-    color: #000 !important;
+    position: relative;
+    background-color: #066 !important;
+    color: #fff !important;
 }
 
-/* important */
+.selected[data-buffer] {
+    position: relative;
+    background-color: #660 !important;
+    color: #fff !important;
+}
+
+.selected::after {
+    content: "";
+    box-sizing: content-box;
+    padding: 0 0.2em;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 0;
+    width: 1em;
+    border-bottom-width: 0.2em;
+    border-bottom-style: solid;
+    animation: 1s blink step-end infinite;
+}
+
+@keyframes blink {
+    from, to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: #fff;
+    }
+}
+
 .hidden {
     display: none !important;
 }
