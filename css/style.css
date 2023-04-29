@@ -5,7 +5,7 @@ html {
 }
 
 body {
-    margin: 0.75em;
+    margin: 1em;
 }
 
 #open-sram-div {
@@ -19,6 +19,7 @@ body {
 #hex-editor {
     display: flex;
     font-family: Courier, monospace;
+    margin-right: 1em;
 }
 
 .row {
@@ -29,7 +30,7 @@ body {
 #offsets-col {
     display: flex;
     flex-direction: column;
-    margin-right: 0.75em;
+    margin-right: 1ch;
 }
 
 #offsets-col span {
@@ -38,7 +39,7 @@ body {
 }
 
 #bytes-col {
-    margin-right: 0.75em;
+    margin-right: 1ch;
 }
 
 #bytes-col span {
@@ -46,7 +47,6 @@ body {
 }
 
 #chars-col {
-    margin-right: 0.75em;
 }
 
 #chars-col span {
@@ -63,23 +63,23 @@ body {
 }
 
 .offset.header {
-    margin-bottom: 0.75em;
+    margin-bottom: 1ch;
 }
 
 #bytes-header {
     display: flex;
-    margin-bottom: 0.75em;
+    margin-bottom: 1ch;
 }
 
 #chars-header {
     display: flex;
-    margin-bottom: 0.75em;
+    margin-bottom: 1ch;
 }
 
 /* 8 byte spacing */
 
 .byte:nth-child(8n-8) {
-    margin-right: 0.75em;
+    margin-right: 1ch;
 }
 
 .byte:nth-last-child(1) {
@@ -122,6 +122,8 @@ body {
 
 .selected[data-buffer] {
     position: relative;
+    display: inline-block;
+    width: 2ch;
     background-color: #660 !important;
     color: #fff !important;
 }

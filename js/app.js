@@ -171,6 +171,15 @@ function byteClick(e) {
     const lastSelected = document.getElementsByClassName("selected");
     for (const ls of lastSelected) {
         ls.classList.remove("selected");
+        
+        // was byte edit interrupted?
+        let bufferChar = ls.dataset.buffer;
+        if (bufferChar) {
+            // sram file has already been updated
+            // just delete the buffer and pad with a "0"
+            delete ls.dataset.buffer;
+            ls.innerHTML = "0" + ls.innerHTML;
+        }
     }
     e.target.classList.add("selected");
 
@@ -185,7 +194,7 @@ function updateSelectionData(target) {
     let pos = target.dataset.pos;
     let view = new FileData(pos);
     let val = target.innerHTML;
-    console.log(pos.toString(16));
+    console.log("pos: " + pos.toString(16));
 
     // header
     let selectionFileSpan = createTextElement("span", view.SlotName);
@@ -205,7 +214,7 @@ function updateSelectionData(target) {
 }
 
 function docKeyPress(e) {
-    console.log(e);
+    //console.log(e);
     
     // throw out commands
     if (e.ctrlKey) return;
@@ -215,7 +224,7 @@ function docKeyPress(e) {
     if (isNaN(num)) return;
 
     num = num.toString(16);
-    console.log(num);
+    console.log("num press: " + num);
 
     // get current selection byte
     const selected = document.getElementsByClassName("selected");
@@ -233,7 +242,7 @@ function docKeyPress(e) {
         advanceSelection(target, pos);
     } else {
         target.dataset.buffer = num;
-        newVal = num + "&nbsp;";
+        newVal = num;
     }
     sramFile[pos] = parseInt(newVal, 16);
 
@@ -319,7 +328,7 @@ function diff(i) {
     let originalByte = sramFileOriginal[i];
     let byte = sramFile[i];
     let spans = document.querySelectorAll("span[data-pos='" + i + "']");
-    console.log(spans.length)
+
     for (const span of spans) {
         if (byte === originalByte) {
             span.classList.remove("changed");
