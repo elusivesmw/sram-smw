@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2017", "DOM"],
+    "module": "ES6",
+    "removeComments": true,
+    "sourceMap": true
+  },
+  "include": ["js/*"]
+}

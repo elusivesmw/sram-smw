@@ -28,13 +28,13 @@ var showHeader = false;
 
 // global vars
 const fileReader = new FileReader();
-var sramFile = [];
-var sramFileOriginal = [];
+var sramFile: Uint8Array;
+var sramFileOriginal: Uint8Array;
 var openFileName = "";
 
 
-function openSramFile(e) {
-    var file = e.target.files[0];
+function openSramFile(e: ProgressEvent) {
+    let file = (<HTMLInputElement>e.target).files[0];
     if (!file) return;
     openFileName = file.name;
 
@@ -42,10 +42,11 @@ function openSramFile(e) {
     fileReader.readAsArrayBuffer(file);
 }
 
-function readFile(e) {
+function readFile(e: Event) {
     // is load event only good enough?
     console.log(e);
-    sramFile = new Uint8Array(fileReader.result);
+    let result = fileReader.result as ArrayBufferLike;
+    sramFile = new Uint8Array(result);
     console.log(fileReader);
     sramFileOriginal = sramFile.slice(0); // copy of values
     console.log(sramFile);
@@ -59,7 +60,7 @@ function readFile(e) {
     fillTextTable();
 }
 
-function saveSramFile(e) {
+function saveSramFile(e: Event) {
     console.log(e);
 
     if (sramFile) {
@@ -113,7 +114,7 @@ function buildOffsets() {
     }
 }
 
-function buildOffsetsHeader(width) {
+function buildOffsetsHeader(width: number) {
     let offsetsHeaderSpan = createTextElement("span", "".padStart(width,"-"));
     offsetsHeaderSpan.id = "offsets-header";
     offsetsHeaderSpan.classList.add("offset");
@@ -145,17 +146,17 @@ function fillBytesData() {
     for (let r = 0; r < rows; ++r) {
         let rowOffset = r * BYTES_PER_ROW;
         let rowDiv = document.createElement("div");
-        rowDiv.classList = ["row"];
+        rowDiv.classList.add("row");
 
         for (let c = 0; c < BYTES_PER_ROW; ++c) {
-            let pos = rowOffset + c;
+            let pos:number = rowOffset + c;
             if (pos >= len) break; // in the event the last row isn't full
 
             // bytes
             let val = sramFile[pos].toString(16).padStart(2, "0");
             let span = createTextElement("span", val);
             span.classList.add("byte");
-            span.dataset.pos = pos;
+            span.dataset.pos = pos.toString();
 
             // highlight save slot
             addSlotClasses(span, pos);
@@ -169,7 +170,7 @@ function fillBytesData() {
     }
 }
 
-function addSlotClasses(target, pos) {
+function addSlotClasses(target: Element, pos: number) {
     const slotLength = 143;
     if (pos < slotLength) {
         target.classList.add("file-a");
@@ -189,19 +190,21 @@ function addSlotClasses(target, pos) {
     } 
 }
 
-function byteClick(e) {
+function byteClick(e:Event) {
     // remove selected
     deselectAll();
+
     //move selected class
-    e.target.classList.add("selected");
+    const target = <HTMLElement>e.target;
+    target.classList.add("selected");
     
     // update selection data
-    updateSelectionData(e.target);
+    updateSelectionData(target);
 }
 
 function deselectAll() {
     const lastSelected = document.getElementsByClassName("selected");
-    for (const ls of lastSelected) {
+    for (const ls of lastSelected as any) {
         ls.classList.remove("selected");
         
         // was byte edit interrupted?
@@ -215,11 +218,11 @@ function deselectAll() {
     }
 }
 
-function updateSelectionData(target) {
+function updateSelectionData(target:HTMLElement) {
     selectionDiv.innerHTML = "";
 
     // get data
-    let pos = target.dataset.pos;
+    let pos = parseInt(target.dataset.pos);
     let view = new FileData(pos);
     let val = target.innerHTML;
     console.log("pos: " + pos.toString(16));
@@ -241,7 +244,7 @@ function updateSelectionData(target) {
     selectionDiv.appendChild(selectionValSpan);
 }
 
-function docKeyPress(e) {
+function docKeyPress(e:KeyboardEvent) {
     //console.log(e);
     
     // throw out commands
@@ -253,27 +256,27 @@ function docKeyPress(e) {
     let num = parseInt(e.key, 16);
     if (isNaN(num)) return;
 
-    num = num.toString(16);
-    console.log("num press: " + num);
+    let char = num.toString(16);
+    console.log("num press: " + char);
 
     // get current selection byte
     const selected = document.getElementsByClassName("selected");
     if (selected.length !== 1) return;
-    const target = selected[0];
-    console.log(target);
+    const target = <HTMLElement>selected[0];
+    //console.log(target);
     let pos = parseInt(target.dataset.pos);
 
-    let newVal;
+    let newVal: string;
     let buffer = target.dataset.buffer;
     if (buffer) {
         delete target.dataset.buffer;
-        newVal = buffer + num;
+        newVal = buffer + char;
 
         let next = pos + 1;
         advanceSelection(next);
     } else {
-        target.dataset.buffer = num;
-        newVal = num;
+        target.dataset.buffer = char;
+        newVal = char;
     }
     sramFile[pos] = parseInt(newVal, 16);
 
@@ -288,7 +291,7 @@ function docKeyPress(e) {
     diff(pos);
 }
 
-function advanceSelection(pos) {
+function advanceSelection(pos:number) {
     if (pos < 0) return; // maybe wrap to eof later
     if (pos >= sramFile.byteLength) return; // maybe wrap to 0 later
 
@@ -296,21 +299,22 @@ function advanceSelection(pos) {
     deselectAll();
     
     // update selected span
-    const nextTarget = document.querySelector("span[data-pos='" + pos + "']");
+    const nextTarget = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
+    if (nextTarget === null) return;
     nextTarget.classList.add("selected");
 
     // update selection data
     updateSelectionData(nextTarget);
 }
 
-function docKeyDown(e) {
+function docKeyDown(e:KeyboardEvent) {
     console.log(e);
 
     // get current selection byte
     const selected = document.getElementsByClassName("selected");
     if (selected.length !== 1) return;
-    const target = selected[0];
-    //console.log(target);
+    const target = <HTMLElement>selected[0];
+    console.log(target);
     let pos = parseInt(target.dataset.pos);
     let next;
 
@@ -354,7 +358,7 @@ function fillTextTable() {
             let char = byteToChar(pos);
             let span = createTextElement("span", char);
             span.classList.add("text");
-            span.dataset.pos = pos;
+            span.dataset.pos = pos.toString();
             rowDiv.appendChild(span);
         }
         // append the row
@@ -362,7 +366,7 @@ function fillTextTable() {
     }
 }
 
-function byteToChar (i) {
+function byteToChar (i:number) {
     let charcode = sramFile[i];
     // control chars to .
     if (charcode < 0x20 || (charcode > 0x7E && charcode < 0xA0)) {
@@ -376,7 +380,7 @@ function byteToChar (i) {
     return String.fromCharCode(charcode);
 }
 
-function createTextElement(type, text) {
+function createTextElement(type:string, text:string) {
     const el = document.createElement(type);
     const elText = document.createTextNode(text);
     el.appendChild(elText);
@@ -389,12 +393,12 @@ function diffAll() {
     } 
 }
 
-function diff(i) {
+function diff(i:number) {
     let originalByte = sramFileOriginal[i];
     let byte = sramFile[i];
     let spans = document.querySelectorAll("span[data-pos='" + i + "']");
 
-    for (const span of spans) {
+    for (const span of spans as any) {
         if (byte === originalByte) {
             span.classList.remove("changed");
         } else {
@@ -407,8 +411,24 @@ function diff(i) {
 // init
 buildHexEditorHeader();
 
+
+// type FileData = {
+//     Slot: number;
+//     SlotName: string;
+//     Region: number;
+//     Index: number;
+//     RegionText: string;
+// }
+
 class FileData {
-    constructor (pos) {
+    public Slot: number;
+    public SlotName: string;
+    public Region: number;
+    public Index: number;
+    public RegionText: string;
+
+
+    constructor (pos:number) {
         const OverworldLevelSettingFlags = 0x0000; // 96 bytes
         const OverworldEventFlags = 0x0060; // 15 bytes
         const CurrentSubmapMario = 0x006F; // 1 byte
@@ -523,6 +543,9 @@ class FileData {
             regionText = "Undefined";
         }
 
+
+        
+
         // expose
         this.Slot = slot;
         this.SlotName = this.slotIndexName(this.Slot);
@@ -531,7 +554,7 @@ class FileData {
         this.RegionText = regionText;
     }
 
-    slotIndexName(i) {
+    slotIndexName(i: number) {
         switch (i) {
             case 0:
                 return "File A";
@@ -550,7 +573,7 @@ class FileData {
         }
     }
 
-    levelEntrance(i) {
+    levelEntrance(i: number) {
         // 0x000 - 0x024, 0x101 - 0x13B
         let levelNum = (i > 0x024) ? (0x0DC + i) : i;
         return levelNum.toString(16).padStart(3, "0")
