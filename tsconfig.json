@@ -2,8 +2,9 @@
   "compilerOptions": {
     "lib": ["ES2017", "DOM"],
     "module": "ES6",
+    "outDir": "./dist/",
     "removeComments": true,
     "sourceMap": true
   },
-  "include": ["js/*"]
+  "include": ["./src/"]
 }
