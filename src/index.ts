@@ -4,11 +4,16 @@ import "../css/style.scss";
 // dom elements
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
+const checksumBtn = document.getElementById("checksum-btn");
+checksumBtn.addEventListener("click", testChecksum);
+
 document.addEventListener("keypress", docKeyPress);
 document.addEventListener("keydown", docKeyDown, true);
 const fileInfoDiv = document.getElementById("file-info");
 const saveSramBtn = document.getElementById("save-sram-btn");
 saveSramBtn.addEventListener("click", saveSramFile);
+
+
 
 // hex editor
 const fileDataDiv = document.getElementById("hex-editor");
@@ -418,6 +423,31 @@ function diff(i:number) {
 }
 
 
+function testChecksum() {
+    const DefaultTotal = 0x5A5A;
+    const ChecksumPos = 0x008D;
+
+    checksum(0, ChecksumPos, DefaultTotal);
+}
+
+function checksum(start: number, end: number, total: number) {
+    const maxint16 = Math.pow(2, 16);
+
+    if (!sramFile) return;
+    if (sramFile.byteLength < end) return;
+
+    // is there a built in wrap around?
+    let sum = 0;
+    for (let i = start; i < end; ++i) {
+        let byteVal = sramFile[i];
+        sum = (sum + byteVal) % maxint16;
+    }
+    console.log("total: " + total.toString(16));
+    console.log("sum: " + sum.toString(16));
+    let checksum = total - sum;
+    console.log("checksum: " + Math.abs(checksum).toString(16)); // only abs in the display
+    console.log("assert: " + (sum + checksum).toString(16) + " should be " + total.toString(16));
+}
+
 // init
 buildHexEditorHeader();
-
