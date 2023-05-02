@@ -1,4 +1,5 @@
 import { FileData } from "./file-data";
+import "../css/style.scss";
 
 // dom elements
 const openSramBtn = document.getElementById("open-sram-btn");
@@ -242,7 +243,6 @@ function updateSelectionData(target:HTMLElement) {
     // info
     let selectionValSpan = createTextElement("span", val);
     selectionValSpan.classList.add("selection-data");
-    selectionValSpan.classList.add("cursor");
     selectionDiv.appendChild(selectionValSpan);
 }
 

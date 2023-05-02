@@ -1,10 +1,8 @@
 const path = require('path');
-const env = process.env.NODE_ENV == "production" ? "production" : "development";
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-module.exports = {
+var config = {
   entry: './src/index.ts',
-  devtool: 'inline-source-map',
-  mode: env,
   module: {
     rules: [
       {
@@ -12,8 +10,18 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
     ],
   },
+    plugins: [
+        new MiniCssExtractPlugin({
+          filename: "../css/style.css",
+          chunkFilename: "[id].css"
+        })
+    ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
   },
@@ -21,4 +29,22 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
+};
+
+module.exports = (env, argv) => {
+  // run:
+  // npx webpack --env prod
+  // for release
+
+  if (!env.prod) {
+    config.mode = "development"
+    config.devtool = 'eval';
+  }
+  else { // production
+    config.mode = "production";
+    config.devtool = 'source-map';
+  }
+  console.log(config.mode); 
+
+  return config;
 };

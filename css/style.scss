@@ -1,0 +1,194 @@
+$body-bgcolor: #000;
+$body-color: #fff;
+
+$hex-color: #fff;
+$hex-bgcolor-changed: #660;
+$hex-bgcolor-selected: #088;
+$hex-bgcolor-buffered: #880;
+$hex-char-width: 1ch;
+
+$cursor-color: #fff;
+
+html {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: $body-bgcolor;
+    color: $body-color;
+}
+
+body {
+    margin: 1em;
+}
+
+#file {
+    display: flex;
+    margin-bottom: 1.5em;
+}
+
+input[type="file"] {
+    margin-right: 1em;
+    font-size: 1em;
+}
+
+#file-info {
+    display: flex;
+    align-items: center;
+    margin-right: 1em;
+}
+
+button {
+    font-size: 1em;
+}
+
+#layout {
+    display: flex;
+}
+
+#hex-editor {
+    display: flex;
+    font-family: Courier, monospace;
+    margin-right: 1em;
+}
+
+.row {
+    display: flex;
+}
+
+// columns
+#offsets-col {
+    display: flex;
+    flex-direction: column;
+    margin-right: $hex-char-width;
+
+    span {
+        display: block;
+        padding: 0.1em;
+    }
+}
+
+#bytes-col {
+    margin-right: $hex-char-width;
+
+    span {
+        padding: 0.1em;
+    }
+}
+
+#chars-col {
+    span {
+        padding: 0.1em 0;
+    }
+}
+
+// headers
+.header {
+    background-color: #222;
+}
+
+.offset {
+    background-color: #222;
+}
+
+.offset.header {
+    margin-bottom: $hex-char-width;
+}
+
+#bytes-header {
+    display: flex;
+    margin-bottom: $hex-char-width;
+}
+
+#chars-header {
+    display: flex;
+    margin-bottom: $hex-char-width;
+}
+
+.byte {
+    // 8 byte spacing
+    &:nth-child(8n-8) {
+        margin-right: $hex-char-width;
+    }
+    &:nth-last-child(1) {
+        margin-right: 0;
+    }    
+}
+
+// region highlighting
+.file-a {
+    background-color: #300;
+}
+.file-a.backup {
+    background-color: #322;
+}
+
+.file-b {
+    background-color: #030;
+}
+.file-b.backup {
+    background-color: #232;
+}
+
+.file-c {
+    background-color: #003;
+}
+.file-c.backup {
+    background-color: #223;
+}
+
+
+// important
+.changed {
+    background-color: $hex-bgcolor-changed !important;
+}
+
+.selected {
+    position: relative;
+    background-color: $hex-bgcolor-selected !important;
+
+    &[data-buffer] {
+        position: relative;
+        display: inline-block;
+        width: 2ch;
+        background-color: $hex-bgcolor-buffered !important;
+    }
+    
+    &::after {
+        content: "";
+        box-sizing: content-box;
+        padding: 0 0.2em;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 0;
+        width: 1em;
+        border-bottom-width: 0.2em;
+        border-bottom-style: solid;
+        animation: 1s blink step-end infinite;
+    }
+}
+
+@keyframes blink {
+    from, to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: $cursor-color;
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+// selected byte info
+#selection {
+    border: 1px solid #888;
+    padding: 0.5em;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.selection-data {
+    display: block;
+}
