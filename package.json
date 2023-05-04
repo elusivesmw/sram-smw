@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/elusivesmw/sram-smw/issues"
   },
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "css-loader": "^6.7.3",
-    "mini-css-extract-plugin": "^2.7.5"
+    "mini-css-extract-plugin": "^2.7.5",
+    "ts-loader": "^9.4.2"
   }
 }
