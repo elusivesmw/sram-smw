@@ -5,7 +5,7 @@ import "../css/style.scss";
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
 document.addEventListener("keypress", docKeyPress);
-document.addEventListener("keydown", docKeyDown);
+document.addEventListener("keydown", docKeyDown, true);
 const fileInfoDiv = document.getElementById("file-info");
 const saveSramBtn = document.getElementById("save-sram-btn");
 saveSramBtn.addEventListener("click", saveSramFile);
@@ -305,11 +305,14 @@ function advanceSelection(pos:number) {
     if (nextTarget === null) return;
     nextTarget.classList.add("selected");
 
+    // scroll into view
+    nextTarget.scrollIntoView({ behavior: "auto", block: "center", inline: "nearest" });
+
     // update selection data
     updateSelectionData(nextTarget);
 }
 
-function docKeyDown(e:KeyboardEvent) {
+function docKeyDown(e: KeyboardEvent) {
     console.log(e);
 
     // get current selection byte
@@ -317,24 +320,29 @@ function docKeyDown(e:KeyboardEvent) {
     if (selected.length !== 1) return;
     const target = <HTMLElement>selected[0];
     console.log(target);
+
     let pos = parseInt(target.dataset.pos);
     let next;
 
     // handle arrow controls 
     switch (e.key) {
         case "ArrowLeft":
+            e.preventDefault();
             next = pos - 1;
             advanceSelection(next);
             break;
         case "ArrowUp":
+            e.preventDefault();
             next = pos - BYTES_PER_ROW;
             advanceSelection(next);
             break;
         case "ArrowDown":
+            e.preventDefault();
             next = pos + BYTES_PER_ROW;
             advanceSelection(next);
             break;
         case "ArrowRight":
+            e.preventDefault();
             next = pos + 1;
             advanceSelection(next);
             break;
