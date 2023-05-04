@@ -1,1 +1,5 @@
-/in
+node_modules 
+dist
+in
+*.css
+*.css.map

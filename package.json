@@ -1,0 +1,31 @@
+{
+  "name": "sram-smw",
+  "version": "1.0.0",
+  "description": "SRAM editor for SMW",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elusivesmw/sram-smw.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elusivesmw/sram-smw/issues"
+  },
+  "homepage": "https://github.com/elusivesmw/sram-smw#readme",
+  "devDependencies": {
+    "sass": "^1.62.1",
+    "sass-loader": "^13.2.2",
+    "webpack": "^5.81.0",
+    "webpack-cli": "^5.0.2"
+  },
+  "dependencies": {
+    "css-loader": "^6.7.3",
+    "mini-css-extract-plugin": "^2.7.5",
+    "ts-loader": "^9.4.2"
+  }
+}

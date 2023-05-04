@@ -1,3 +1,6 @@
+import { FileData } from "./file-data";
+import "../css/style.scss";
+
 // dom elements
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
@@ -28,13 +31,13 @@ var showHeader = false;
 
 // global vars
 const fileReader = new FileReader();
-var sramFile = [];
-var sramFileOriginal = [];
+var sramFile: Uint8Array;
+var sramFileOriginal: Uint8Array;
 var openFileName = "";
 
 
-function openSramFile(e) {
-    var file = e.target.files[0];
+function openSramFile(e: ProgressEvent) {
+    let file = (<HTMLInputElement>e.target).files[0];
     if (!file) return;
     openFileName = file.name;
 
@@ -42,10 +45,11 @@ function openSramFile(e) {
     fileReader.readAsArrayBuffer(file);
 }
 
-function readFile(e) {
+function readFile(e: Event) {
     // is load event only good enough?
     console.log(e);
-    sramFile = new Uint8Array(fileReader.result);
+    let result = fileReader.result as ArrayBufferLike;
+    sramFile = new Uint8Array(result);
     console.log(fileReader);
     sramFileOriginal = sramFile.slice(0); // copy of values
     console.log(sramFile);
@@ -59,7 +63,7 @@ function readFile(e) {
     fillTextTable();
 }
 
-function saveSramFile(e) {
+function saveSramFile(e: Event) {
     console.log(e);
 
     if (sramFile) {
@@ -113,7 +117,7 @@ function buildOffsets() {
     }
 }
 
-function buildOffsetsHeader(width) {
+function buildOffsetsHeader(width: number) {
     let offsetsHeaderSpan = createTextElement("span", "".padStart(width,"-"));
     offsetsHeaderSpan.id = "offsets-header";
     offsetsHeaderSpan.classList.add("offset");
@@ -145,17 +149,17 @@ function fillBytesData() {
     for (let r = 0; r < rows; ++r) {
         let rowOffset = r * BYTES_PER_ROW;
         let rowDiv = document.createElement("div");
-        rowDiv.classList = ["row"];
+        rowDiv.classList.add("row");
 
         for (let c = 0; c < BYTES_PER_ROW; ++c) {
-            let pos = rowOffset + c;
+            let pos:number = rowOffset + c;
             if (pos >= len) break; // in the event the last row isn't full
 
             // bytes
             let val = sramFile[pos].toString(16).padStart(2, "0");
             let span = createTextElement("span", val);
             span.classList.add("byte");
-            span.dataset.pos = pos;
+            span.dataset.pos = pos.toString();
 
             // highlight save slot
             addSlotClasses(span, pos);
@@ -169,7 +173,7 @@ function fillBytesData() {
     }
 }
 
-function addSlotClasses(target, pos) {
+function addSlotClasses(target: Element, pos: number) {
     const slotLength = 143;
     if (pos < slotLength) {
         target.classList.add("file-a");
@@ -189,19 +193,21 @@ function addSlotClasses(target, pos) {
     } 
 }
 
-function byteClick(e) {
+function byteClick(e:Event) {
     // remove selected
     deselectAll();
+
     //move selected class
-    e.target.classList.add("selected");
+    const target = <HTMLElement>e.target;
+    target.classList.add("selected");
     
     // update selection data
-    updateSelectionData(e.target);
+    updateSelectionData(target);
 }
 
 function deselectAll() {
     const lastSelected = document.getElementsByClassName("selected");
-    for (const ls of lastSelected) {
+    for (const ls of lastSelected as any) {
         ls.classList.remove("selected");
         
         // was byte edit interrupted?
@@ -215,11 +221,11 @@ function deselectAll() {
     }
 }
 
-function updateSelectionData(target) {
+function updateSelectionData(target:HTMLElement) {
     selectionDiv.innerHTML = "";
 
     // get data
-    let pos = target.dataset.pos;
+    let pos = parseInt(target.dataset.pos);
     let view = new FileData(pos);
     let val = target.innerHTML;
     console.log("pos: " + pos.toString(16));
@@ -237,11 +243,10 @@ function updateSelectionData(target) {
     // info
     let selectionValSpan = createTextElement("span", val);
     selectionValSpan.classList.add("selection-data");
-    selectionValSpan.classList.add("cursor");
     selectionDiv.appendChild(selectionValSpan);
 }
 
-function docKeyPress(e) {
+function docKeyPress(e:KeyboardEvent) {
     //console.log(e);
     
     // throw out commands
@@ -253,27 +258,27 @@ function docKeyPress(e) {
     let num = parseInt(e.key, 16);
     if (isNaN(num)) return;
 
-    num = num.toString(16);
-    console.log("num press: " + num);
+    let char = num.toString(16);
+    console.log("num press: " + char);
 
     // get current selection byte
     const selected = document.getElementsByClassName("selected");
     if (selected.length !== 1) return;
-    const target = selected[0];
-    console.log(target);
+    const target = <HTMLElement>selected[0];
+    //console.log(target);
     let pos = parseInt(target.dataset.pos);
 
-    let newVal;
+    let newVal: string;
     let buffer = target.dataset.buffer;
     if (buffer) {
         delete target.dataset.buffer;
-        newVal = buffer + num;
+        newVal = buffer + char;
 
         let next = pos + 1;
         advanceSelection(next);
     } else {
-        target.dataset.buffer = num;
-        newVal = num;
+        target.dataset.buffer = char;
+        newVal = char;
     }
     sramFile[pos] = parseInt(newVal, 16);
 
@@ -288,7 +293,7 @@ function docKeyPress(e) {
     diff(pos);
 }
 
-function advanceSelection(pos) {
+function advanceSelection(pos:number) {
     if (pos < 0) return; // maybe wrap to eof later
     if (pos >= sramFile.byteLength) return; // maybe wrap to 0 later
 
@@ -296,21 +301,22 @@ function advanceSelection(pos) {
     deselectAll();
     
     // update selected span
-    const nextTarget = document.querySelector("span[data-pos='" + pos + "']");
+    const nextTarget = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
+    if (nextTarget === null) return;
     nextTarget.classList.add("selected");
 
     // update selection data
     updateSelectionData(nextTarget);
 }
 
-function docKeyDown(e) {
+function docKeyDown(e:KeyboardEvent) {
     console.log(e);
 
     // get current selection byte
     const selected = document.getElementsByClassName("selected");
     if (selected.length !== 1) return;
-    const target = selected[0];
-    //console.log(target);
+    const target = <HTMLElement>selected[0];
+    console.log(target);
     let pos = parseInt(target.dataset.pos);
     let next;
 
@@ -354,7 +360,7 @@ function fillTextTable() {
             let char = byteToChar(pos);
             let span = createTextElement("span", char);
             span.classList.add("text");
-            span.dataset.pos = pos;
+            span.dataset.pos = pos.toString();
             rowDiv.appendChild(span);
         }
         // append the row
@@ -362,7 +368,7 @@ function fillTextTable() {
     }
 }
 
-function byteToChar (i) {
+function byteToChar (i:number) {
     let charcode = sramFile[i];
     // control chars to .
     if (charcode < 0x20 || (charcode > 0x7E && charcode < 0xA0)) {
@@ -376,7 +382,7 @@ function byteToChar (i) {
     return String.fromCharCode(charcode);
 }
 
-function createTextElement(type, text) {
+function createTextElement(type:string, text:string) {
     const el = document.createElement(type);
     const elText = document.createTextNode(text);
     el.appendChild(elText);
@@ -389,12 +395,12 @@ function diffAll() {
     } 
 }
 
-function diff(i) {
+function diff(i:number) {
     let originalByte = sramFileOriginal[i];
     let byte = sramFile[i];
     let spans = document.querySelectorAll("span[data-pos='" + i + "']");
 
-    for (const span of spans) {
+    for (const span of spans as any) {
         if (byte === originalByte) {
             span.classList.remove("changed");
         } else {
@@ -407,152 +413,3 @@ function diff(i) {
 // init
 buildHexEditorHeader();
 
-class FileData {
-    constructor (pos) {
-        const OverworldLevelSettingFlags = 0x0000; // 96 bytes
-        const OverworldEventFlags = 0x0060; // 15 bytes
-        const CurrentSubmapMario = 0x006F; // 1 byte
-        const CurrentSubmapLuigi = 0x0070; // 1 byte
-        const PlayerAnimation = 0x0071; // 4 bytes
-        const OverworldXPosMario = 0x0075; // 2 bytes
-        const OverworldYPosMario = 0x0077; // 2 bytes
-        const OverworldXPosLuigi = 0x0079; // 2 bytes
-        const OverworldYPosLuigi = 0x007B; // 2 bytes
-        const PointerOverworldXPosMario = 0x007D; // 2 bytes
-        const PointerOverworldYPosMario = 0x007F; // 2 bytes
-        const PointerOverworldXPosLuigi = 0x0081; // 2 bytes
-        const PointerOverworldYPosLuigi = 0x0083; // 2 bytes
-        const SwitchBlockFlagsGreen = 0x0085; // 1 byte
-        const SwitchBlockFlagsYellow = 0x0086; // 1 byte
-        const SwitchBlockFlagsBlue = 0x0087; // 1 byte
-        const SwitchBlockFlagsRed = 0x0088; // 1 byte
-        const EmptyRegion = 0x0089; // 3 bytes
-        const NumberEventsTriggered = 0x008C; // 1 byte
-        const ChecksumComplement = 0x008D // 2 bytes
-        const SlotSize = 143;
-
-        let slot = Math.floor(pos / SlotSize);
-        let slotPos = pos % SlotSize; // position relative to file
-        let region = 0;
-        let index = 0;
-        let regionText = "";
-
-        if (slotPos >= OverworldLevelSettingFlags && slotPos < OverworldEventFlags) {
-            region = OverworldLevelSettingFlags;
-            index = slotPos - OverworldLevelSettingFlags;
-            regionText = "Level " + this.levelEntrance(index);
-        } else if (slotPos >= OverworldEventFlags && slotPos < CurrentSubmapMario) {
-            region = OverworldEventFlags;
-            index = slotPos - OverworldEventFlags;
-            regionText = "Event flags " + index;
-        } else if (slotPos == CurrentSubmapMario) {
-            region = CurrentSubmapMario;
-            index = 0;
-            regionText = "Current Submap (Mario)";
-        } else if (slotPos == CurrentSubmapLuigi) {
-            region = CurrentSubmapLuigi;
-            index = 0;
-            regionText = "Current Submap (Luigi)";
-        } else if (slotPos >= PlayerAnimation && slotPos < OverworldXPosMario) {
-            region = PlayerAnimation;
-            index = slotPos - PlayerAnimation;
-            regionText = "Player animation " + index;
-        } else if (slotPos >= OverworldXPosMario && slotPos < OverworldYPosMario) {
-            region = OverworldXPosMario;
-            index = slotPos - OverworldXPosMario;
-            regionText = "Overworld X Position (Mario) " + index;
-        } else if (slotPos >= OverworldYPosMario && slotPos < OverworldXPosLuigi) {
-            region = OverworldYPosMario;
-            index = slotPos - OverworldYPosMario;
-            regionText = "Overworld Y Position (Mario) " + index;
-        } else if (slotPos >= OverworldXPosLuigi && slotPos < OverworldYPosLuigi) {
-            region = OverworldXPosLuigi;
-            index = slotPos - OverworldXPosLuigi;
-            regionText = "Overworld X Position (Luigi) " + index;
-        } else if (slotPos >= OverworldYPosLuigi && slotPos < PointerOverworldXPosMario) {
-            region = OverworldYPosLuigi;
-            index = slotPos - OverworldYPosLuigi;
-            regionText = "Overworld Y Position (Luigi) " + index;
-        } else if (slotPos >= PointerOverworldXPosMario && slotPos < PointerOverworldYPosMario) {
-            region = PointerOverworldXPosMario;
-            index = slotPos - PointerOverworldXPosMario;
-            regionText = "Pointer to Overworld X Position (Mario) " + index;
-        } else if (slotPos >= PointerOverworldYPosMario && slotPos < PointerOverworldXPosLuigi) {
-            region = PointerOverworldYPosMario;
-            index = slotPos - PointerOverworldYPosMario;
-            regionText = "Pointer to Overworld Y Position (Mario) " + index;
-        } else if (slotPos >= PointerOverworldXPosLuigi && slotPos < PointerOverworldYPosLuigi) {
-            region = PointerOverworldXPosLuigi;
-            index = slotPos - PointerOverworldXPosLuigi;
-            regionText = "Pointer to Overworld X Position (Luigi) " + index;
-        } else if (slotPos >= PointerOverworldYPosLuigi && slotPos < SwitchBlockFlagsGreen) {
-            region = PointerOverworldYPosLuigi;
-            index = slotPos - PointerOverworldYPosLuigi;
-            regionText = "Pointer to Overworld Y Position (Luigi) " + index;
-        } else if (slotPos == SwitchBlockFlagsGreen) {
-            region = SwitchBlockFlagsGreen;
-            index = 0;
-            regionText = "Green Switch Block flag";
-        } else if (slotPos == SwitchBlockFlagsYellow) {
-            region = SwitchBlockFlagsYellow;
-            index = 0;
-            regionText = "Yellow Switch Block flag";
-        } else if (slotPos == SwitchBlockFlagsBlue) {
-            region = SwitchBlockFlagsBlue;
-            index = 0;
-            regionText = "Blue Switch Block flag";
-        } else if (slotPos == SwitchBlockFlagsRed) {
-            region = SwitchBlockFlagsRed;
-            index = 0;
-            regionText = "Red Switch Block flag";
-        } else if (slotPos >= EmptyRegion && slotPos < NumberEventsTriggered) {
-            region = EmptyRegion;
-            index = slotPos - EmptyRegion;
-            regionText = "Empty";
-        } else if (slotPos == NumberEventsTriggered) {
-            region = NumberEventsTriggered;
-            index = 0;
-            regionText = "Number of Events Triggered";
-        } else if (slotPos >= ChecksumComplement && slotPos < SlotSize) {
-            region = ChecksumComplement;
-            index = slotPos - ChecksumComplement;
-            regionText = "Checksum Complement " + index;
-        } else {
-            region = slotPos;
-            index = 0;
-            regionText = "Undefined";
-        }
-
-        // expose
-        this.Slot = slot;
-        this.SlotName = this.slotIndexName(this.Slot);
-        this.Region = region;
-        this.Index = index;
-        this.RegionText = regionText;
-    }
-
-    slotIndexName(i) {
-        switch (i) {
-            case 0:
-                return "File A";
-            case 1:
-                return "File B";
-            case 2:
-                return "File C";
-            case 3:
-                return "Backup A";
-            case 4:
-                return "Backup B";
-            case 5:
-                return "Backup C";
-            default:
-                return "Undefined";
-        }
-    }
-
-    levelEntrance(i) {
-        // 0x000 - 0x024, 0x101 - 0x13B
-        let levelNum = (i > 0x024) ? (0x0DC + i) : i;
-        return levelNum.toString(16).padStart(3, "0")
-    }
-}
