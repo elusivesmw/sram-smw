@@ -422,15 +422,41 @@ function diff(i:number) {
     }
 }
 
-
 function testChecksum() {
     const DefaultTotal = 0x5A5A;
     const ChecksumPos = 0x008D;
 
-    checksum(0, ChecksumPos, DefaultTotal);
+    let cs = checksum(0, ChecksumPos, DefaultTotal);
+    // to little endian
+    let hi = (cs & 0xFF00) >> 8;
+    let lo = cs & 0x00FF;
+
+    // update val
+    updateByteVal(ChecksumPos, lo);
+    updateByteVal(ChecksumPos + 1, hi);
 }
 
-function checksum(start: number, end: number, total: number) {
+// function toLittleEndian(val: number) {
+//     let hi = (val & 0xFF00) >> 8;
+//     let lo = val & 0x00FF;
+//     console.log(lo.toString(16) + " " + hi.toString(16));
+// }
+
+function updateByteVal(pos: number, val: number)
+{
+    // update the byte array
+    sramFile[pos] = val;
+
+    // update changed span
+    const target = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
+    if (target === null) return;
+    target.innerHTML = val.toString(16).padStart(2, "0"); // TODO: extend
+
+    // add approprate classes
+    diff(pos);
+}
+
+function checksum(start: number, end: number, total: number): number {
     const maxint16 = Math.pow(2, 16);
 
     if (!sramFile) return;
@@ -447,6 +473,8 @@ function checksum(start: number, end: number, total: number) {
     let checksum = total - sum;
     console.log("checksum: " + Math.abs(checksum).toString(16)); // only abs in the display
     console.log("assert: " + (sum + checksum).toString(16) + " should be " + total.toString(16));
+
+    return checksum;
 }
 
 // init
