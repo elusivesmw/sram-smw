@@ -4,8 +4,6 @@ import "../css/style.scss";
 // dom elements
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
-const checksumBtn = document.getElementById("checksum-btn");
-checksumBtn.addEventListener("click", testChecksum);
 
 document.addEventListener("keypress", docKeyPress);
 document.addEventListener("keydown", docKeyDown, true);
@@ -39,7 +37,6 @@ const fileReader = new FileReader();
 var sramFile: Uint8Array;
 var sramFileOriginal: Uint8Array;
 var openFileName = "";
-
 
 function openSramFile(e: ProgressEvent) {
     let file = (<HTMLInputElement>e.target).files[0];
@@ -85,7 +82,7 @@ function buildHexEditorHeader() {
 
     for (let i = 0; i < BYTES_PER_ROW; ++i) {
         // bytes
-        let val = i.toString(16).padStart(2, "0");
+        let val = byteToHexString(i);
         let span = createTextElement("span", val);
         span.id = "bytes-header-" + i;
         span.classList.add("byte");
@@ -161,7 +158,7 @@ function fillBytesData() {
             if (pos >= len) break; // in the event the last row isn't full
 
             // bytes
-            let val = sramFile[pos].toString(16).padStart(2, "0");
+            let val = byteToHexString(sramFile[pos]);
             let span = createTextElement("span", val);
             span.classList.add("byte");
             span.dataset.pos = pos.toString();
@@ -296,6 +293,9 @@ function docKeyPress(e:KeyboardEvent) {
 
     // did val change?
     diff(pos);
+
+    let slot = FileData.getSlot(pos);
+    updateChecksum(slot);
 }
 
 function advanceSelection(pos:number) {
@@ -395,6 +395,10 @@ function byteToChar (i:number) {
     return String.fromCharCode(charcode);
 }
 
+function byteToHexString(num: number) {
+    return num.toString(16).padStart(2, "0");
+}
+
 function createTextElement(type:string, text:string) {
     const el = document.createElement(type);
     const elText = document.createTextNode(text);
@@ -422,35 +426,29 @@ function diff(i:number) {
     }
 }
 
-function testChecksum() {
+function updateChecksum(slot: number) {
     const DefaultTotal = 0x5A5A;
-    const ChecksumPos = 0x008D;
+    let start = slot * FileData.SlotSize;
+    let end = start + FileData.ChecksumComplement;
 
-    let cs = checksum(0, ChecksumPos, DefaultTotal);
+    let cs = checksum(start, end, DefaultTotal);
     // to little endian
     let hi = (cs & 0xFF00) >> 8;
     let lo = cs & 0x00FF;
 
     // update val
-    updateByteVal(ChecksumPos, lo);
-    updateByteVal(ChecksumPos + 1, hi);
+    updateByteVal(end, lo);
+    updateByteVal(end + 1, hi);
 }
 
-// function toLittleEndian(val: number) {
-//     let hi = (val & 0xFF00) >> 8;
-//     let lo = val & 0x00FF;
-//     console.log(lo.toString(16) + " " + hi.toString(16));
-// }
-
-function updateByteVal(pos: number, val: number)
-{
+function updateByteVal(pos: number, val: number) {
     // update the byte array
     sramFile[pos] = val;
 
     // update changed span
     const target = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
     if (target === null) return;
-    target.innerHTML = val.toString(16).padStart(2, "0"); // TODO: extend
+    target.innerHTML = byteToHexString(val);
 
     // add approprate classes
     diff(pos);
