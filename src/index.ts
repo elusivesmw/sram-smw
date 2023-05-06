@@ -1,4 +1,5 @@
 import { FileData } from "./file-data";
+import { SaveFile } from "./save-file";
 import "../css/style.scss";
 
 // dom elements
@@ -34,9 +35,9 @@ var showHeader = false;
 
 // global vars
 const fileReader = new FileReader();
-var sramFile: Uint8Array;
-var sramFileOriginal: Uint8Array;
 var openFileName = "";
+var sramFile: SaveFile;
+
 
 function openSramFile(e: ProgressEvent) {
     let file = (<HTMLInputElement>e.target).files[0];
@@ -51,13 +52,11 @@ function readFile(e: Event) {
     // is load event only good enough?
     console.log(e);
     let result = fileReader.result as ArrayBufferLike;
-    sramFile = new Uint8Array(result);
-    console.log(fileReader);
-    sramFileOriginal = sramFile.slice(0); // copy of values
-    console.log(sramFile);
+    let sramFileBytes = new Uint8Array(result);
+    sramFile = new SaveFile(sramFileBytes);
 
     fileInfoDiv.innerHTML = "";
-    const elText = document.createTextNode(sramFile.byteLength + " bytes");
+    const elText = document.createTextNode(sramFileBytes.byteLength + " bytes");
     fileInfoDiv.appendChild(elText);
 
     buildOffsets();
@@ -67,9 +66,8 @@ function readFile(e: Event) {
 
 function saveSramFile(e: Event) {
     console.log(e);
-
     if (sramFile) {
-        var blob = new Blob([sramFile], {type: "application/octet-stream"});
+        var blob = sramFile.toBlob();
         var link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
         link.download = openFileName;
@@ -102,7 +100,7 @@ function buildHexEditorHeader() {
 function buildOffsets() {
     offsetsColDiv.innerHTML = "";
 
-    let len = sramFile.byteLength;
+    let len = sramFile.length;
     let rows = Math.ceil(len / BYTES_PER_ROW);
     let maxVal = len - 1;
     let offsetNumChars = maxVal.toString(16).length;
@@ -145,7 +143,7 @@ function toggleHeader() {
 function fillBytesData() {
     bytesDataDiv.innerHTML = "";
 
-    let len = sramFile.byteLength;
+    let len = sramFile.length;
     let rows = Math.ceil(len / BYTES_PER_ROW);
 
     for (let r = 0; r < rows; ++r) {
@@ -158,7 +156,7 @@ function fillBytesData() {
             if (pos >= len) break; // in the event the last row isn't full
 
             // bytes
-            let val = byteToHexString(sramFile[pos]);
+            let val = byteToHexString(sramFile.getByte(pos));
             let span = createTextElement("span", val);
             span.classList.add("byte");
             span.dataset.pos = pos.toString();
@@ -282,7 +280,7 @@ function docKeyPress(e:KeyboardEvent) {
         target.dataset.buffer = char;
         newVal = char;
     }
-    sramFile[pos] = parseInt(newVal, 16);
+    sramFile.setByte(pos, parseInt(newVal, 16))
 
     // update byte in hex editor to match array data
     target.innerHTML = newVal;
@@ -300,7 +298,7 @@ function docKeyPress(e:KeyboardEvent) {
 
 function advanceSelection(pos:number) {
     if (pos < 0) return; // maybe wrap to eof later
-    if (pos >= sramFile.byteLength) return; // maybe wrap to 0 later
+    if (pos >= sramFile.length) return; // maybe wrap to 0 later
 
     // remove selected
     deselectAll();
@@ -357,7 +355,7 @@ function docKeyDown(e: KeyboardEvent) {
 function fillTextTable() {
     charsDataDiv.innerHTML = "";
 
-    let len = sramFile.byteLength;
+    let len =  sramFile.length;
     let rows = Math.ceil(len / BYTES_PER_ROW);
 
     for (let r = 0; r < rows; ++r) {
@@ -382,7 +380,7 @@ function fillTextTable() {
 }
 
 function byteToChar (i:number) {
-    let charcode = sramFile[i];
+    let charcode = sramFile.getByte(i);
     // control chars to .
     if (charcode < 0x20 || (charcode > 0x7E && charcode < 0xA0)) {
         return ".";
@@ -407,21 +405,20 @@ function createTextElement(type:string, text:string) {
 }
 
 function diffAll() {
-    for (let i = 0; i < sramFileOriginal.byteLength; ++i) {
+    // TODO: this should really be the shorter of the changed and original array 
+    for (let i = 0; i < sramFile.length; ++i) {
         diff(i);
     } 
 }
 
-function diff(i:number) {
-    let originalByte = sramFileOriginal[i];
-    let byte = sramFile[i];
+function diff(i: number) {
     let spans = document.querySelectorAll("span[data-pos='" + i + "']");
 
     for (const span of spans as any) {
-        if (byte === originalByte) {
-            span.classList.remove("changed");
-        } else {
+        if (sramFile.diffAt(i)) {
             span.classList.add("changed");
+        } else {
+            span.classList.remove("changed");
         }
     }
 }
@@ -443,7 +440,7 @@ function updateChecksum(slot: number) {
 
 function updateByteVal(pos: number, val: number) {
     // update the byte array
-    sramFile[pos] = val;
+    sramFile.setByte(pos, val);
 
     // update changed span
     const target = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
@@ -457,13 +454,12 @@ function updateByteVal(pos: number, val: number) {
 function checksum(start: number, end: number, total: number): number {
     const maxint16 = Math.pow(2, 16);
 
-    if (!sramFile) return;
-    if (sramFile.byteLength < end) return;
+    if (sramFile.length < end) return;
 
     // is there a built in wrap around?
     let sum = 0;
     for (let i = start; i < end; ++i) {
-        let byteVal = sramFile[i];
+        let byteVal = sramFile.getByte(i);
         sum = (sum + byteVal) % maxint16;
     }
     console.log("total: " + total.toString(16));

@@ -47,7 +47,7 @@ export class FileData {
         if (slotPos >= OverworldLevelSettingFlags && slotPos < OverworldEventFlags) {
             region = OverworldLevelSettingFlags;
             index = slotPos - OverworldLevelSettingFlags;
-            regionText = "Level " + this.levelEntrance(index);
+            regionText = "Level " + this.getLevelNum(index);
         } else if (slotPos >= OverworldEventFlags && slotPos < CurrentSubmapMario) {
             region = OverworldEventFlags;
             index = slotPos - OverworldEventFlags;
@@ -157,9 +157,28 @@ export class FileData {
         }
     }
 
-    levelEntrance(i: number) {
+    getLevelNum(i: number) {
         // 0x000 - 0x024, 0x101 - 0x13B
         let levelNum = (i > 0x024) ? (0x0DC + i) : i;
         return levelNum.toString(16).padStart(3, "0")
     }
+
+    getLevelIndex(level: number) {
+        let levelIndex = (level > 0x100) ? (level - 0x0DC) : level;
+        return levelIndex;
+    }
+
+    setLevelBit(slot: number, levelNum: number, bit: number, val: boolean) {
+
+    }
+
+    setLevelPassed(slot: number, levelNum: number, pass: boolean) {
+        let slotAddress = slot * FileData.SlotSize;
+        let levelIndex = this.getLevelIndex(levelNum);
+        let levelAddress = slotAddress + levelIndex;
+        //let num = 
+        
+    }
+
+
 }
