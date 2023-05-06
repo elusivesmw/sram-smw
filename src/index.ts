@@ -4,11 +4,14 @@ import "../css/style.scss";
 // dom elements
 const openSramBtn = document.getElementById("open-sram-btn");
 openSramBtn.addEventListener("change", openSramFile);
+
 document.addEventListener("keypress", docKeyPress);
 document.addEventListener("keydown", docKeyDown, true);
 const fileInfoDiv = document.getElementById("file-info");
 const saveSramBtn = document.getElementById("save-sram-btn");
 saveSramBtn.addEventListener("click", saveSramFile);
+
+
 
 // hex editor
 const fileDataDiv = document.getElementById("hex-editor");
@@ -34,7 +37,6 @@ const fileReader = new FileReader();
 var sramFile: Uint8Array;
 var sramFileOriginal: Uint8Array;
 var openFileName = "";
-
 
 function openSramFile(e: ProgressEvent) {
     let file = (<HTMLInputElement>e.target).files[0];
@@ -80,7 +82,7 @@ function buildHexEditorHeader() {
 
     for (let i = 0; i < BYTES_PER_ROW; ++i) {
         // bytes
-        let val = i.toString(16).padStart(2, "0");
+        let val = byteToHexString(i);
         let span = createTextElement("span", val);
         span.id = "bytes-header-" + i;
         span.classList.add("byte");
@@ -156,7 +158,7 @@ function fillBytesData() {
             if (pos >= len) break; // in the event the last row isn't full
 
             // bytes
-            let val = sramFile[pos].toString(16).padStart(2, "0");
+            let val = byteToHexString(sramFile[pos]);
             let span = createTextElement("span", val);
             span.classList.add("byte");
             span.dataset.pos = pos.toString();
@@ -291,6 +293,9 @@ function docKeyPress(e:KeyboardEvent) {
 
     // did val change?
     diff(pos);
+
+    let slot = FileData.getSlot(pos);
+    updateChecksum(slot);
 }
 
 function advanceSelection(pos:number) {
@@ -390,6 +395,10 @@ function byteToChar (i:number) {
     return String.fromCharCode(charcode);
 }
 
+function byteToHexString(num: number) {
+    return num.toString(16).padStart(2, "0");
+}
+
 function createTextElement(type:string, text:string) {
     const el = document.createElement(type);
     const elText = document.createTextNode(text);
@@ -417,7 +426,54 @@ function diff(i:number) {
     }
 }
 
+function updateChecksum(slot: number) {
+    const DefaultTotal = 0x5A5A;
+    let start = slot * FileData.SlotSize;
+    let end = start + FileData.ChecksumComplement;
+
+    let cs = checksum(start, end, DefaultTotal);
+    // to little endian
+    let hi = (cs & 0xFF00) >> 8;
+    let lo = cs & 0x00FF;
+
+    // update val
+    updateByteVal(end, lo);
+    updateByteVal(end + 1, hi);
+}
+
+function updateByteVal(pos: number, val: number) {
+    // update the byte array
+    sramFile[pos] = val;
+
+    // update changed span
+    const target = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
+    if (target === null) return;
+    target.innerHTML = byteToHexString(val);
+
+    // add approprate classes
+    diff(pos);
+}
+
+function checksum(start: number, end: number, total: number): number {
+    const maxint16 = Math.pow(2, 16);
+
+    if (!sramFile) return;
+    if (sramFile.byteLength < end) return;
+
+    // is there a built in wrap around?
+    let sum = 0;
+    for (let i = start; i < end; ++i) {
+        let byteVal = sramFile[i];
+        sum = (sum + byteVal) % maxint16;
+    }
+    console.log("total: " + total.toString(16));
+    console.log("sum: " + sum.toString(16));
+    let checksum = total - sum;
+    console.log("checksum: " + Math.abs(checksum).toString(16)); // only abs in the display
+    console.log("assert: " + (sum + checksum).toString(16) + " should be " + total.toString(16));
+
+    return checksum;
+}
 
 // init
 buildHexEditorHeader();
-

@@ -1,36 +1,45 @@
 
+const OverworldLevelSettingFlags = 0x0000; // 96 bytes
+const OverworldEventFlags = 0x0060; // 15 bytes
+const CurrentSubmapMario = 0x006F; // 1 byte
+const CurrentSubmapLuigi = 0x0070; // 1 byte
+const PlayerAnimation = 0x0071; // 4 bytes
+const OverworldXPosMario = 0x0075; // 2 bytes
+const OverworldYPosMario = 0x0077; // 2 bytes
+const OverworldXPosLuigi = 0x0079; // 2 bytes
+const OverworldYPosLuigi = 0x007B; // 2 bytes
+const PointerOverworldXPosMario = 0x007D; // 2 bytes
+const PointerOverworldYPosMario = 0x007F; // 2 bytes
+const PointerOverworldXPosLuigi = 0x0081; // 2 bytes
+const PointerOverworldYPosLuigi = 0x0083; // 2 bytes
+const SwitchBlockFlagsGreen = 0x0085; // 1 byte
+const SwitchBlockFlagsYellow = 0x0086; // 1 byte
+const SwitchBlockFlagsBlue = 0x0087; // 1 byte
+const SwitchBlockFlagsRed = 0x0088; // 1 byte
+const EmptyRegion = 0x0089; // 3 bytes
+const NumberEventsTriggered = 0x008C; // 1 byte
+
+
 export class FileData {
+    static SlotSize = 143;
+    static ChecksumComplement = 0x008D // 2 bytes
+
+    static getSlot(pos: number) {
+        return Math.floor(pos / FileData.SlotSize);
+    }
+    static getSlotPos(pos: number) {
+        return pos % FileData.SlotSize;
+    }
+
     Slot: number;
     SlotName: string;
     Region: number;
     Index: number;
     RegionText: string;
-
+    
     constructor (pos: number) {
-        const OverworldLevelSettingFlags = 0x0000; // 96 bytes
-        const OverworldEventFlags = 0x0060; // 15 bytes
-        const CurrentSubmapMario = 0x006F; // 1 byte
-        const CurrentSubmapLuigi = 0x0070; // 1 byte
-        const PlayerAnimation = 0x0071; // 4 bytes
-        const OverworldXPosMario = 0x0075; // 2 bytes
-        const OverworldYPosMario = 0x0077; // 2 bytes
-        const OverworldXPosLuigi = 0x0079; // 2 bytes
-        const OverworldYPosLuigi = 0x007B; // 2 bytes
-        const PointerOverworldXPosMario = 0x007D; // 2 bytes
-        const PointerOverworldYPosMario = 0x007F; // 2 bytes
-        const PointerOverworldXPosLuigi = 0x0081; // 2 bytes
-        const PointerOverworldYPosLuigi = 0x0083; // 2 bytes
-        const SwitchBlockFlagsGreen = 0x0085; // 1 byte
-        const SwitchBlockFlagsYellow = 0x0086; // 1 byte
-        const SwitchBlockFlagsBlue = 0x0087; // 1 byte
-        const SwitchBlockFlagsRed = 0x0088; // 1 byte
-        const EmptyRegion = 0x0089; // 3 bytes
-        const NumberEventsTriggered = 0x008C; // 1 byte
-        const ChecksumComplement = 0x008D // 2 bytes
-        const SlotSize = 143;
-
-        let slot = Math.floor(pos / SlotSize);
-        let slotPos = pos % SlotSize; // position relative to file
+        let slot = FileData.getSlot(pos);
+        let slotPos = FileData.getSlotPos(pos); // position relative to file
         let region = 0;
         let index = 0;
         let regionText = "";
@@ -111,9 +120,9 @@ export class FileData {
             region = NumberEventsTriggered;
             index = 0;
             regionText = "Number of Events Triggered";
-        } else if (slotPos >= ChecksumComplement && slotPos < SlotSize) {
-            region = ChecksumComplement;
-            index = slotPos - ChecksumComplement;
+        } else if (slotPos >= FileData.ChecksumComplement && slotPos < FileData.SlotSize) {
+            region = FileData.ChecksumComplement;
+            index = slotPos - FileData.ChecksumComplement;
             regionText = "Checksum Complement " + index;
         } else {
             region = slotPos;
