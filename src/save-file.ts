@@ -97,15 +97,20 @@ export class SaveFile {
         return levelIndex;
     }
 
+    getLevelBit(slot: number, levelNum: number, bit: number) {
+        let levelAddress = this.getSlotAddress(slot) + this.getLevelIndex(levelNum);
+        return this.getBit(levelAddress, bit);
+    }
+
     setLevelBit(slot: number, levelNum: number, bit: number, val: boolean) {
         let levelAddress = this.getSlotAddress(slot) + this.getLevelIndex(levelNum);
         this.setBit(levelAddress, bit, val);
     }
 
-    getLevelBit(slot: number, levelNum: number, bit: number) {
-        let levelAddress = this.getSlotAddress(slot) + this.getLevelIndex(levelNum);
-        return this.getBit(levelAddress, bit);
-    }
+    // getEventBit(slot: number, eventNum: number) {
+    //     let eventAddress = 
+    //     this.getBit(levelAddress, bit);
+    // }
 
 
 

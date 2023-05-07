@@ -31,7 +31,7 @@ const selectionDiv = document.getElementById("selection");
 const BYTES_PER_ROW = 16;
 
 // config
-var showHeader = false;
+var showHeader = true;
 
 // global vars
 const fileReader = new FileReader();
@@ -247,7 +247,7 @@ function updateSelectionData(target: HTMLElement) {
 
 
 
-    // non-generic view data
+    // non-generic selected view data
     if (view.Region === 0) { // level data
         const levelDiv = document.createElement("div");
         for (let i = 7; i >= 0; --i) {
@@ -255,7 +255,7 @@ function updateSelectionData(target: HTMLElement) {
 
             const input = document.createElement("input");
             input.type = "checkbox";
-            input.dataset.level = view.getLevelNum(pos); // this is dumb
+            input.dataset.pos = pos.toString();
             input.dataset.bit = i.toString();
             input.checked = sramFile.getBit(pos, i);
             input.addEventListener("change", levelChange);
@@ -269,6 +269,37 @@ function updateSelectionData(target: HTMLElement) {
         }
         selectionDiv.appendChild(levelDiv);
     }
+
+    // generic view data
+    const eventsDiv = document.createElement("div");
+    const OverworldEventFlags = ViewData.getSlot(pos) + 96;
+    for (let i = 0; i < 15; ++i) {
+        let bytePos = OverworldEventFlags + i;
+        //let eventByte = sramFile.getByte(bytePos);
+        for (let j = 0; j < 8; ++j) {
+            const groupDiv = document.createElement("div");
+
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.dataset.pos = bytePos.toString();
+            input.dataset.bit = j.toString();
+            input.checked = sramFile.getBit(bytePos, j); // ughhhhhhhhhhhhhh
+            input.addEventListener("change", eventChange);
+
+            const label = document.createElement("label");
+            label.innerText = "Event " + (i * 8 + j).toString(16);
+
+            groupDiv.appendChild(input);
+            groupDiv.appendChild(label);
+            eventsDiv.appendChild(groupDiv);
+        }
+       
+    }
+    selectionDiv.appendChild(eventsDiv);
+
+
+
 }
 
 // TODO: move this somewhere...
@@ -302,14 +333,33 @@ function levelChange(e: InputEvent) {
     let target = <HTMLInputElement>e.target;
     let checked = target.checked;
 
-    let selected = getSelected();
-    let pos = parseInt(selected.dataset.pos);
+    let pos = parseInt(target.dataset.pos);
     let view = new ViewData(pos);
     let slot = view.Slot;
     let levelNum = view.Index;
     let levelBit = parseInt(target.dataset.bit);
 
     sramFile.setLevelBit(slot, levelNum, levelBit, checked);
+    //updateByteVal(levelNum, sramFile.getByte(levelNum)); // sloppy
+    updateHexEditorByte(pos, sramFile.getByte(pos));
+    updateChecksum(slot);
+}
+
+function eventChange(e: InputEvent) {
+    console.log(e);
+
+    // get info for current selected level
+    let target = <HTMLInputElement>e.target;
+    let checked = target.checked;
+    let pos = parseInt(target.dataset.pos);
+    let bit = parseInt(target.dataset.bit);
+
+    let view = new ViewData(pos);
+    let slot = view.Slot;
+    // let eventByte = view.Index;
+    // let eventNum = parseInt(target.dataset.event);
+
+    sramFile.setBit(pos, bit, checked);
     //updateByteVal(levelNum, sramFile.getByte(levelNum)); // sloppy
     updateHexEditorByte(pos, sramFile.getByte(pos));
     updateChecksum(slot);
