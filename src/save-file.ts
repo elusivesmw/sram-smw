@@ -48,6 +48,27 @@ export class SaveFile {
     public setByte(i: number, val: number) {
         this._bytes[i] = val;
     }
+    public getBit(i: number, bit: number): boolean {
+        let b = this.getByte(i);
+        let mask = 1 << bit;
+        let val =  b & mask;
+        return (val === mask); 
+    }
+    public setBit(i: number, bit: number, val: boolean) {
+        let b = this.getByte(i);
+        let mask = 1 << bit; 
+        if (val) {
+            // set bit
+            b |= mask;
+        } else {
+            // clear bit
+            b &= ~mask;
+        }
+        this.setByte(i, b);
+    }
+
+
+
     public get length() {
         return this._bytes.length;
     }
@@ -77,13 +98,13 @@ export class SaveFile {
     }
 
     setLevelBit(slot: number, levelNum: number, bit: number, val: boolean) {
-        let slotAddress = this.getSlotAddress(slot);
-        let levelIndex = this.getLevelIndex(levelNum);
-        let levelAddress = slotAddress + levelIndex;
+        let levelAddress = this.getSlotAddress(slot) + this.getLevelIndex(levelNum);
+        this.setBit(levelAddress, bit, val);
+    }
 
-        let byte = this._bytes[levelAddress];
-        byte = setBit(byte, bit, val);
-        this._bytes[levelAddress] = byte;
+    getLevelBit(slot: number, levelNum: number, bit: number) {
+        let levelAddress = this.getSlotAddress(slot) + this.getLevelIndex(levelNum);
+        return this.getBit(levelAddress, bit);
     }
 
 
@@ -121,19 +142,6 @@ export class SaveFile {
         const RightBit = 0;
         return this.setLevelBit(slot, levelNum, RightBit, val);
     }
-}
-
-function setBit(byte: number, bit: number, val: boolean) {
-    const ByteMax = 0xFF;
-    let bitVal = 1 << bit; 
-    if (val) {
-        // set bit
-        byte |= bitVal;
-    } else {
-        // clean bit
-        byte &= ~bitVal;
-    }
-    return ByteMax & byte;
 }
 
 // sramFile.setLevelBit(0, 0, 0, true);

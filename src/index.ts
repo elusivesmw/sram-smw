@@ -1,4 +1,4 @@
-import { FileData } from "./file-data";
+import { ViewData } from "./view-data";
 import { SaveFile } from "./save-file";
 import "../css/style.scss";
 
@@ -221,29 +221,98 @@ function deselectAll() {
     }
 }
 
-function updateSelectionData(target:HTMLElement) {
+function updateSelectionData(target: HTMLElement) {
     selectionDiv.innerHTML = "";
 
     // get data
     let pos = parseInt(target.dataset.pos);
-    let view = new FileData(pos);
+    let view = new ViewData(pos);
     let val = target.innerHTML;
     console.log("pos: " + pos.toString(16));
 
     // header
-    let selectionFileSpan = createTextElement("span", view.SlotName);
+    const selectionFileSpan = createTextElement("span", view.SlotName);
     selectionFileSpan.classList.add("selection-data")
     addSlotClasses(selectionFileSpan, pos);
     selectionDiv.appendChild(selectionFileSpan);
 
-    let selectionRegionSpan = createTextElement("span", view.RegionText);
+    const selectionRegionSpan = createTextElement("span", view.RegionText);
     selectionRegionSpan.classList.add("selection-data")
     selectionDiv.appendChild(selectionRegionSpan);
 
     // info
-    let selectionValSpan = createTextElement("span", val);
+    const selectionValSpan = createTextElement("span", val);
     selectionValSpan.classList.add("selection-data");
     selectionDiv.appendChild(selectionValSpan);
+
+
+
+    // non-generic view data
+    if (view.Region === 0) { // level data
+        const levelDiv = document.createElement("div");
+        for (let i = 7; i >= 0; --i) {
+            const groupDiv = document.createElement("div");
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.dataset.level = view.getLevelNum(pos); // this is dumb
+            input.dataset.bit = i.toString();
+            input.checked = sramFile.getBit(pos, i);
+            input.addEventListener("change", levelChange);
+    
+            const label = document.createElement("label");
+            label.innerText = levelLabel(i);
+    
+            groupDiv.appendChild(input);
+            groupDiv.appendChild(label);
+            levelDiv.appendChild(groupDiv);
+        }
+        selectionDiv.appendChild(levelDiv);
+    }
+}
+
+// TODO: move this somewhere...
+function levelLabel(i: number) {
+    switch (i) {
+        case 7:
+            return "Level Passed";
+        case 6:
+            return "Midway Passed";
+        case 5:
+            return "No entry if passed";
+        case 4:
+            return "Save prompt";
+        case 3:
+            return "Enable walking up";
+        case 2:
+            return "Enable walking down";
+        case 1:
+            return "Enable walking left";
+        case 0:
+            return "Enable walking right";
+        default:
+            return "Undefined";
+    }
+}
+
+function levelChange(e: InputEvent) {
+    console.log(e);
+
+    // get info for current selected level
+    let target = <HTMLInputElement>e.target;
+    let checked = target.checked;
+
+    let selected = getSelected();
+    let pos = parseInt(selected.dataset.pos);
+    let view = new ViewData(pos);
+    let slot = view.Slot;
+    let levelNum = view.Index;
+    let levelBit = parseInt(target.dataset.bit);
+
+    sramFile.setLevelBit(slot, levelNum, levelBit, checked);
+    //updateByteVal(levelNum, sramFile.getByte(levelNum)); // sloppy
+    updateHexEditorByte(pos, sramFile.getByte(pos));
+    updateChecksum(slot);
 }
 
 function docKeyPress(e:KeyboardEvent) {
@@ -262,28 +331,26 @@ function docKeyPress(e:KeyboardEvent) {
     console.log("num press: " + char);
 
     // get current selection byte
-    const selected = document.getElementsByClassName("selected");
-    if (selected.length !== 1) return;
-    const target = <HTMLElement>selected[0];
+    const selected = getSelected();
     //console.log(target);
-    let pos = parseInt(target.dataset.pos);
+    let pos = parseInt(selected.dataset.pos);
 
     let newVal: string;
-    let buffer = target.dataset.buffer;
+    let buffer = selected.dataset.buffer;
     if (buffer) {
-        delete target.dataset.buffer;
+        delete selected.dataset.buffer;
         newVal = buffer + char;
 
         let next = pos + 1;
         advanceSelection(next);
     } else {
-        target.dataset.buffer = char;
+        selected.dataset.buffer = char;
         newVal = char;
     }
     sramFile.setByte(pos, parseInt(newVal, 16))
 
     // update byte in hex editor to match array data
-    target.innerHTML = newVal;
+    selected.innerHTML = newVal;
 
     // update char in text view
     const textTarget = document.querySelector("span.text[data-pos='" + pos + "']");
@@ -292,8 +359,16 @@ function docKeyPress(e:KeyboardEvent) {
     // did val change?
     diff(pos);
 
-    let slot = FileData.getSlot(pos);
+    let slot = ViewData.getSlot(pos);
     updateChecksum(slot);
+}
+
+function getSelected() {
+    // get current selection byte
+    const targets = document.getElementsByClassName("selected");
+    if (targets.length !== 1) return;
+    const selected = <HTMLElement>targets[0];
+    return selected;
 }
 
 function advanceSelection(pos:number) {
@@ -424,24 +499,23 @@ function diff(i: number) {
 }
 
 function updateChecksum(slot: number) {
-    const DefaultTotal = 0x5A5A;
-    let start = slot * FileData.SlotSize;
-    let end = start + FileData.ChecksumComplement;
+    const SumTotal = 0x5A5A;
+    let start = slot * ViewData.SlotSize;
+    let end = start + ViewData.ChecksumComplement;
 
-    let cs = checksum(start, end, DefaultTotal);
-    // to little endian
+    let cs = checksum(start, end, SumTotal);
     let hi = (cs & 0xFF00) >> 8;
     let lo = cs & 0x00FF;
-
-    // update val
     updateByteVal(end, lo);
     updateByteVal(end + 1, hi);
 }
 
 function updateByteVal(pos: number, val: number) {
-    // update the byte array
     sramFile.setByte(pos, val);
+    updateHexEditorByte(pos, val);
+}
 
+function updateHexEditorByte(pos, val) {
     // update changed span
     const target = <HTMLElement>document.querySelector("span[data-pos='" + pos + "']");
     if (target === null) return;

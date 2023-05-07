@@ -20,15 +20,15 @@ const EmptyRegion = 0x0089; // 3 bytes
 const NumberEventsTriggered = 0x008C; // 1 byte
 
 
-export class FileData {
+export class ViewData {
     static SlotSize = 143;
     static ChecksumComplement = 0x008D // 2 bytes
 
     static getSlot(pos: number) {
-        return Math.floor(pos / FileData.SlotSize);
+        return Math.floor(pos / ViewData.SlotSize);
     }
     static getSlotPos(pos: number) {
-        return pos % FileData.SlotSize;
+        return pos % ViewData.SlotSize;
     }
 
     Slot: number;
@@ -38,8 +38,8 @@ export class FileData {
     RegionText: string;
     
     constructor (pos: number) {
-        let slot = FileData.getSlot(pos);
-        let slotPos = FileData.getSlotPos(pos); // position relative to file
+        let slot = ViewData.getSlot(pos);
+        let slotPos = ViewData.getSlotPos(pos); // position relative to file
         let region = 0;
         let index = 0;
         let regionText = "";
@@ -120,9 +120,9 @@ export class FileData {
             region = NumberEventsTriggered;
             index = 0;
             regionText = "Number of Events Triggered";
-        } else if (slotPos >= FileData.ChecksumComplement && slotPos < FileData.SlotSize) {
-            region = FileData.ChecksumComplement;
-            index = slotPos - FileData.ChecksumComplement;
+        } else if (slotPos >= ViewData.ChecksumComplement && slotPos < ViewData.SlotSize) {
+            region = ViewData.ChecksumComplement;
+            index = slotPos - ViewData.ChecksumComplement;
             regionText = "Checksum Complement " + index;
         } else {
             region = slotPos;
@@ -173,7 +173,7 @@ export class FileData {
     }
 
     setLevelPassed(slot: number, levelNum: number, pass: boolean) {
-        let slotAddress = slot * FileData.SlotSize;
+        let slotAddress = slot * ViewData.SlotSize;
         let levelIndex = this.getLevelIndex(levelNum);
         let levelAddress = slotAddress + levelIndex;
         //let num = 
