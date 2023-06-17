@@ -1,0 +1,38 @@
+name: Build and push to deploy branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "build" ]
+  pull_request:
+    branches: [ "main", "build" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Build
+      run: |
+        npm install
+        npx webpack
+        
+    - name: Push
+      uses: s0/git-publish-subdir-action@develop
+      env:
+        REPO: self
+        BRANCH: deploy # The branch name where you want to push the assets
+        FOLDER: dist # The directory where your assets are generated
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this
+        MESSAGE: "Build: ({sha}) {msg}" # The commit message
