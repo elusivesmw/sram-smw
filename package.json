@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/elusivesmw/sram-smw#readme",
   "devDependencies": {
+    "html-webpack-plugin": "^5.5.3",
     "sass": "^1.62.1",
     "sass-loader": "^13.2.2",
     "webpack": "^5.81.0",
