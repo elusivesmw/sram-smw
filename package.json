@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/elusivesmw/sram-smw#readme",
   "devDependencies": {
+    "html-webpack-plugin": "^5.5.3",
     "sass": "^1.62.1",
     "sass-loader": "^13.2.2",
+    "typescript": "^5.1.3",
     "webpack": "^5.81.0",
     "webpack-cli": "^5.0.2"
   },

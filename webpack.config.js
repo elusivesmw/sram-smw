@@ -1,5 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 var config = {
   entry: './src/index.ts',
@@ -12,21 +13,27 @@ var config = {
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [
+          MiniCssExtractPlugin.loader, 
+          "css-loader", 
+          "sass-loader"],
       },
     ],
   },
     plugins: [
         new MiniCssExtractPlugin({
-          filename: "../css/style.css",
-          chunkFilename: "[id].css"
+          filename: "css/style.css",
+          chunkFilename: "css/[id].css"
+        }),
+        new HtmlWebpackPlugin({
+          template: 'index.html'
         })
     ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
   },
   output: {
-    filename: 'bundle.js',
+    filename: 'js/bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
 };
